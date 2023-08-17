@@ -22,7 +22,7 @@
     <header data-bs-theme="dark">
       <div class="navbar navbar-dark bg-dark shadow-sm">
         <div class="container">
-          <a href="#" class="navbar-brand d-flex align-items-center">
+          <a href="{% url 'main' %}" class="navbar-brand d-flex align-items-center">
             <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1610 1295" width="30" height="30">
               <style>
                 .s0 { fill: #e31837 } 
@@ -59,10 +59,13 @@
     <footer class="text-body-secondary py-5 footer">
       <div class="container">
         <p class="float-end mb-1">
-          <a href="#">Back to top</a>
+          <a href="#">
+            <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" class="bi bi-arrow-up-square-fill" viewBox="0 0 16 16" fill="gray">
+              <path d="M2 16a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2zm6.5-4.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 1 0z"/>
+            </svg>
+          </a>
         </p>
-        <p class="mb-1">Album example is &copy; Bootstrap, but please download and customize it for yourself!</p>
-        <p class="mb-0">New to Bootstrap? <a href="/">Visit the homepage</a> or read our <a href="../getting-started/introduction/">getting started guide</a>.</p>
+        <p class="mb-1">&copy; SK Hynix X Tacademy</p>
       </div>
     </footer>
 
