@@ -1,0 +1,26 @@
+.nava.active{
+  background-color: transparent !important;
+}
+.nava{
+  color:white !important;
+}
+.nava:hover{
+  color:#e31837 !important;
+}
+.navli:nth-child(2) :hover{
+  color:#f58025 !important;
+}
+.footer {
+  background-color: rgb(219, 219, 219);
+}
+.navbar-brand {
+  padding-top: 0.3125rem !important;
+  padding-bottom: 0.3125rem !important;
+  margin-right: 1rem !important;
+  font-size: 1.25rem !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+}
+.container {
+  padding-bottom: 0px !important;
+}
