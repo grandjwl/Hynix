@@ -1,3 +1,15 @@
+@font-face {
+  font-family: 'Giants-Bold';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2307-1@1.1/Giants-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'KOTRA_BOLD-Bold';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-10-21@1.1/KOTRA_BOLD-Bold.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
 .bd-placeholder-img {
     font-size: 1.125rem;
     text-anchor: middle;
@@ -51,7 +63,7 @@
   }
 
   .btn-bd-primary {
-    --bd-violet-bg: #712cf9;
+    --bd-violet-bg: #aaaaaa;
     --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
 
     --bs-btn-font-weight: 600;
@@ -59,12 +71,12 @@
     --bs-btn-bg: var(--bd-violet-bg);
     --bs-btn-border-color: var(--bd-violet-bg);
     --bs-btn-hover-color: var(--bs-white);
-    --bs-btn-hover-bg: #6528e0;
-    --bs-btn-hover-border-color: #6528e0;
+    --bs-btn-hover-bg: #aaaaaa;
+    --bs-btn-hover-border-color: #aaaaaa;
     --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
     --bs-btn-active-color: var(--bs-btn-hover-color);
-    --bs-btn-active-bg: #5a23c8;
-    --bs-btn-active-border-color: #5a23c8;
+    --bs-btn-active-bg: #aaaaaa;
+    --bs-btn-active-border-color: #aaaaaa;
   }
   .bd-mode-toggle {
     z-index: 1500;
@@ -77,10 +89,19 @@
 
 .bt {
   border:none;
+  width: 190px;
+  height: 50px;
+  line-height: 38px;
+  font-size: 18px;
+  font-weight: 500;
+}
+.bt:active {
+  background-color: #aaaaaa !important;
 }
 .bt1{
   background-color: #e31837;
   opacity: 0.8;
+  margin-right: 10px;
 }
 .bt1:hover {
   background-color: #e31837;
@@ -89,8 +110,20 @@
 .bt2{
   background-color: #f58025;
   opacity: 0.8;
+  margin-left: 10px;
 }
 .bt2:hover {
   background-color: #f58025;
   opacity: 1;
+}
+#main_title {
+  font-family: 'Giants-Bold' !important;
+  display: inline;
+}
+#main_title2 {
+  display: inline;
+  font-family: 'KOTRA_BOLD-Bold' !important;
+  margin:0px;
+  line-height: 58px;
+  color:#e31837
 }
