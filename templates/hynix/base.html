@@ -53,23 +53,25 @@
         </div>
       </div>
     </header>
-    
-    {% block main %}
-    {% endblock %}
+
+    <main>
+      <div id="wrap">
+        <a id="top_btn" class="">
+          <img src="{% static 'img/arrow.png' %}" width="40" height="40">
+        </a> 
+      </div>
+      {% block main %}
+      {% endblock %}
+    </main>
+
     <footer class="text-body-secondary py-5 footer">
       <div class="container">
-        <p class="float-end mb-1">
-          <a href="#">
-            <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" class="bi bi-arrow-up-square-fill" viewBox="0 0 16 16" fill="gray">
-              <path d="M2 16a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2zm6.5-4.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 1 0z"/>
-            </svg>
-          </a>
-        </p>
         <p class="mb-1">&copy; SK Hynix X Tacademy</p>
       </div>
     </footer>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-
+    <script src="{% static 'js/base.js' %}"></script>
+    
   </body>
 </html>
