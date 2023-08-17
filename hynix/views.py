@@ -8,4 +8,4 @@ def simulation(request):
     return render(request, "hynix/simulation.html", {"contents":"<h1>simulator page</h1>"})
 
 def lifecycle(request):
-    return render(request, "hynix/model_lifecycle.html", {"contents":"<h1>mlc page</h1>"})
+    return render(request, "hynix/model_lifecycle.html", {"contents":"mlc page"})
