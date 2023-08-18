@@ -2,5 +2,18 @@
 {% load static %}
 
 {% block main %}
+<div id="Chart" style="width:1000px;height:600px;"></div>
+{% comment %} <div class="content">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <br>
+        <button type="submit">입력</button>
+    </form>
+</div> {% endcomment %}
 {{ contents }}
+<script src="{% static 'js/echarts.js.map' %}"></script>
+<script src="{% static 'js/echarts.js' %}"></script>
+<script src="{% static 'js/echarts.min.js' %}"></script>
+<script src={% static 'js/chart.js' %} type="module"></script>
 {% endblock %}
