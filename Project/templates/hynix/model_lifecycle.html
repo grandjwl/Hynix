@@ -1,0 +1,13 @@
+{% extends "hynix/base.html" %}
+{% load static %}
+
+{% block main %}
+<div style="text-align: center;">
+    <div id="Chart" style="width: 1200px; height: 600px; margin: 0 auto;"></div>
+</div>
+{{ contents }}
+<script src="{% static 'js/echarts.js.map' %}"></script>
+<script src="{% static 'js/echarts.js' %}"></script>
+<script src="{% static 'js/echarts.min.js' %}"></script>
+<script src={% static 'js/chart.js' %} type="module"></script>
+{% endblock %}
