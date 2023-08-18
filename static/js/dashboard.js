@@ -1,152 +1,202 @@
-// var dom = document.getElementById('chart');
-// var myChart = echarts.init(dom, null, {
-//   renderer: 'canvas',
-//   useDirtyRect: false
-// });
-// var app = {};
+// 대시보드 showing 함수
+function ShowChart() {
+  var chartDom = document.getElementById('chart');
+  var myChart = echarts.init(chartDom);
+  var option;
 
-// var option;
+  var pred_max = [99, 94, 90, 87, 85];
+  var pred_min = [50, 60, 70, 80, 84];
+  const diff = pred_max.map((x, y) => x - pred_min[y]);
 
-// let base = +new Date(2016, 9, 3);
-// let oneDay = 24 * 3600 * 1000;
-// let valueBase = Math.random() * 300;
-// let valueBase2 = Math.random() * 50;
-// let data = [];
-// let data2 = [];
-// for (var i = 1; i < 10; i++) {
-//   var now = new Date((base += oneDay));
-//   var dayStr = [now.getFullYear(), now.getMonth() + 1, now.getDate()].join('-');
-//   valueBase = Math.round((Math.random() - 0.5) * 20 + valueBase);
-//   valueBase <= 0 && (valueBase = Math.random() * 300);
-//   data.push([dayStr, valueBase]);
-//   valueBase2 = Math.round((Math.random() - 0.5) * 20 + valueBase2);
-//   valueBase2 <= 0 && (valueBase2 = Math.random() * 50);
-//   data2.push([dayStr, valueBase2]);
-// }
-// option = {
-//   title: {
-//     left: 'center',
-//     text: 'Semiconductor Simulation'
-//   },
-//   legend: {
-//     top: 'bottom',
-//     data: ['Intention']
-//   },
-//   tooltip: {
-//     triggerOn: 'none',
-//     position: function (pt) {
-//       return [pt[0], 130];
-//     }
-//   },
+  option = {
+    title: {
+      text: 'Accumulated Waterfall Chart'
+    },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      },
+      formatter: function (params) {
+        let tar;
+        if (params[1] && params[1].value !== '-') {
+          tar = params[1];
+        } else {
+          tar = params[2];
+        }
+        return tar && tar.name + '<br/>' + tar.seriesName + ' : ' + tar.value;
+      }
+    },
+    legend: {
+      data: ['Max-Min']
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: ["x1","x2","x3","x4","x5"]
+    },
+    yAxis: {
+      type: 'value',
+      min: 0,
+      max: 100
+    },
+    series: [
+      {
+        name: 'Min',
+        type: 'bar',
+        stack: 'Total',
+        label: {
+          show: true,
+          position: 'insideTop'
+        },
+        silent: true,
+        itemStyle: {
+          borderColor: 'transparent',
+          color: 'transparent'
+        },
+        emphasis: {
+          itemStyle: {
+            borderColor: 'transparent',
+            color: 'transparent'
+          }
+        },
+        data: pred_min
+      },
+      
+      {
+        name: 'Max-Min',
+        type: 'bar',
+        stack: 'Total',
+        label: {
+          show: true,
+          position: 'inside'
+        },
+        data: diff
+      },
+      {
+        name: 'Max',
+        type: 'bar',
+        stack: 'Total',
+        label: {
+          show: true,
+          position: 'insideBottom',
+        },
+        silent: true,
+        itemStyle: {
+          borderColor: 'transparent',
+          color: 'transparent'
+        },
+        emphasis: {
+          itemStyle: {
+            borderColor: 'transparent',
+            color: 'transparent'
+          }
+        },
+        data: pred_max
+      }
+    ]
+  };
 
-//   xAxis: {
-//     type: 'time',
-//     axisPointer: {
-//       value: '2016-10-7',
-//       snap: true,
-//       lineStyle: {
-//         color: '#7581BD',
-//         width: 2
-//       },
-//       label: {
-//         show: true,
-//         formatter: function (params) {
-//           return echarts.format.formatTime('yyyy-MM-dd', params.value);
-//         },
-//         backgroundColor: '#7581BD'
-//       },
-//       handle: {
-//         show: true,
-//         color: '#7581BD'
-//       }
-//     },
-//     splitLine: {
-//       show: false
-//     }
-//   },
-//   yAxis: {
-//     type: 'value',
-//     axisTick: {
-//       inside: true
-//     },
-//     splitLine: {
-//       show: false
-//     },
-//     axisLabel: {
-//       inside: true,
-//       formatter: '{value}\n'
-//     },
-//     z: 10
-//   },
-//   grid: {
-//     top: 110,
-//     left: 15,
-//     right: 15,
-//     height: 160
-//   },
-//   dataZoom: [
-//     {
-//       type: 'inside',
-//       throttle: 50
-//     }
-//   ],
-//   series: [
-//     {
-//       name: 'Fake Data',
-//       type: 'line',
-//       smooth: true,
-//       symbol: 'circle',
-//       symbolSize: 5,
-//       sampling: 'average',
-//       itemStyle: {
-//         color: '#0770FF'
-//       },
-//       stack: 'a',
-//       areaStyle: {
-//         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-//           {
-//             offset: 0,
-//             color: 'rgba(58,77,233,0.8)'
-//           },
-//           {
-//             offset: 1,
-//             color: 'rgba(58,77,233,0.3)'
-//           }
-//         ])
-//       },
-//       data: data
-//     },
-//     {
-//       name: 'Fake Data',
-//       type: 'line',
-//       smooth: true,
-//       stack: 'a',
-//       symbol: 'circle',
-//       symbolSize: 5,
-//       sampling: 'average',
-//       itemStyle: {
-//         color: '#F2597F'
-//       },
-//       areaStyle: {
-//         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-//           {
-//             offset: 0,
-//             color: 'rgba(213,72,120,0.8)'
-//           },
-//           {
-//             offset: 1,
-//             color: 'rgba(213,72,120,0.3)'
-//           }
-//         ])
-//       },
-//       data: data2
-//     }
-//   ]
+  option && myChart.setOption(option);
+};
+
+// drag&drop file upload
+// function DragDrop(){
+//   const dropbox = document.querySelector('.file_box');
+//   const imagebox = document.querySelector('.inner_box')
+//   const input_filename = document.querySelector('.file_name');
+
+//   //박스 안에 drag 하고 있을 때
+//   dropbox.addEventListener('dragover', function (e) {
+//     e.preventDefault();
+//     this.style.backgroundColor = 'rgb(13 110 253 / 25%)';
+//   });
+
+//   //박스 밖으로 drag가 나갈 때
+//   dropbox.addEventListener('dragleave', function (e) {
+//     this.style.backgroundColor = 'white';
+//   });
+
+//   //박스 안에 drop 했을 때
+//   dropbox.addEventListener('drop', function (e) {
+//     e.preventDefault();
+//     this.style.backgroundColor = 'white';
+
+//     //파일 이름을 text로 표시
+//     let filename = e.dataTransfer.files[0].name;
+//     imagebox.style.display = "none";
+//     input_filename.innerHTML = filename;
+//   });
 // };
 
-// if (option && typeof option === 'object') {
-//   myChart.setOption(option);
-// }
+// DragDrop();
 
-// window.addEventListener('resize', myChart.resize);
+$(document).ready(function(){
 
+  initFileUploader("#zdrop");
+
+  function initFileUploader(target) {
+    var previewNode = document.querySelector("#zdrop-template");
+    previewNode.id = "";
+    var previewTemplate = previewNode.parentNode.innerHTML;
+    previewNode.parentNode.removeChild(previewNode);
+
+
+    var zdrop = new Dropzone(target, {
+      // url: '/Home/UploadFile',
+      maxFilesize:20,
+      previewTemplate: previewTemplate,
+      autoQueue: true,
+      previewsContainer: "#previews",
+      clickable: "#upload-label"
+    });
+
+    zdrop.on("addedfile", function(file) { 
+      $('.preview-container').css('visibility', 'visible');
+    });
+
+    zdrop.on("totaluploadprogress", function (progress) {
+      var progr = document.querySelector(".progress .determinate");
+      if (progr === undefined || progr === null)
+        return;
+
+      progr.style.width = progress + "%";
+    });
+
+    zdrop.on('dragenter', function () {
+      $('.fileuploader').addClass("active");
+    });
+
+    zdrop.on('dragleave', function () {
+      $('.fileuploader').removeClass("active");			
+    });
+
+    zdrop.on('drop', function () {
+      $('.fileuploader').removeClass("active");	
+    });
+    
+    var toggle = true;
+    /* Preview controller of hide / show */
+    $('#controller').click(function() {
+      if(toggle){
+        $('#previews').css('visibility', 'hidden');
+        $('#controller').html("keyboard_arrow_up");
+        $('#previews').css('height', '0px');
+        toggle = false;
+      }else{
+        $('#previews').css('visibility', 'visible');
+        $('#controller').html("keyboard_arrow_down");
+        $('#previews').css('height', 'initial');
+        toggle = true;
+      }
+    });
+  }
+
+});
+
+ShowChart();
