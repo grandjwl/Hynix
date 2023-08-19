@@ -102,9 +102,55 @@
                 </div>
             </div>
         </div>
+    
+    <!-- <div class="file_box" style="width:1000px;height:400px;">
+        <div class="inner_box">
+            <img src="{% static 'img/fileupload.png' %}" width="100" height="100">
+        </div>
+        <h2 class="file_name">Select CSV File To Upload <br>
+            <span>Or Drag & Drop File Here</span>
+        </h2>
+        
+    </div> -->
+    <div class="row">
+		<div class="col s12">
+			<!-- Uploader Dropzone -->
+			<div id="zdrop" class="fileuploader ">
+				<div id="upload-label" style="width: 200px;">
+					<i class="material-icons"></i>
+					<span class="title">Drag your Files here</span>
+					<span>Some description here </span>
+				</div>
+			</div>
+			<!-- Preview collection of uploaded documents -->
+			<div class="preview-container">
+				<div class="header">
+					<span>Uploaded Files</span>	
+					<i id="controller" class="material-icons">keyboard_arrow_down</i>
+				</div>
+				<div class="collection card" id="previews">
+					<div class="collection-item clearhack valign-wrapper item-template" id="zdrop-template">
+						<div class="left pv zdrop-info" data-dz-thumbnail>
+							<div>
+								<span data-dz-name></span> <span data-dz-size></span>
+							</div>
+							<div class="progress">
+								<div class="determinate" style="width:0" data-dz-uploadprogress></div>
+							</div>
+							<div class="dz-error-message"><span data-dz-errormessage></span></div>
+						</div>
 
-    <div id="chart" style="width: 1220px;height:500px;"></div>
+						<div class="secondary-content actions">
+							<a href="#!" data-dz-remove class="btn-floating ph red white-text waves-effect waves-light"><i class="material-icons white-text">clear</i></i></a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
+    <div id="chart" style="width:1220px;height:500px;display:none;"></div>
+
+    <!-- 사용 미정 -->
     <h2>Section title</h2>
     <div class="table-responsive small">
         <table class="table table-striped table-sm">
