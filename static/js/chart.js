@@ -29,7 +29,7 @@ var option = {
       rotate: 45,  
       textStyle: {  // 날짜 레이블 스타일
         color: 'black',  // 텍스트 색상을 검정색으로 변경
-        fontSize: 12,    // 텍스트 크기 조정
+        fontSize: 15,    // 텍스트 크기 조정
         fontWeight: 'bold', // 텍스트 굵기 설정
       }
     }
@@ -37,20 +37,23 @@ var option = {
 
   yAxis: {
     type: 'value',
-    name: 'delta',   
-    nameTextStyle: { // y축 레이블 스타일
-      color: 'black',  // 텍스트 색상을 검정색으로 변경
-      fontSize: 14,    // 텍스트 크기 조정
-      fontWeight: 'bold', // 텍스트 굵기 설정
+    name: 'delta',
+    nameTextStyle: {
+      color: 'black',
+      fontSize: 20,
+      fontWeight: 'bold',
+    },
     axisLabel: {
       show: true,
       textStyle: {
         fontWeight: 'bold',
         color: 'black',
-        },
+        fontSize: 15, // 텍스트 크기 조정
       },
-    }
+    },
   },
+  
+  
 
   series: [
     {

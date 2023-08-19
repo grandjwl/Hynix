@@ -2,17 +2,48 @@
 {% load static %}
 
 {% block main %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+
+
 <div style="text-align: center;">
     <div id="Chart" style="width: 1200px; height: 600px; margin: 0 auto;"></div>
-
+    
     <!-- 여백을 추가해주세요 -->
     <div style="margin-bottom: 20px;"></div>
-
-    <input type="date" id="selectedDate">
-    <input type="file" id="csvFile">
+    
+    <div>
+        <label for="selectedDate">날짜 선택:</label>
+        <input type="date" id="selectedDate">
+    </div>
+    <table id="table_id" class="display">
+        <thead>
+            <tr>
+                <th>Column 1</th>
+                <th>Column 2</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Row 1 Data 1</td>
+                <td>Row 1 Data 2</td>
+            </tr>
+            <tr>
+                <td>Row 2 Data 1</td>
+                <td>Row 2 Data 2</td>
+            </tr>
+        </tbody>
+    </table>
+    
     <button id="loadData">Load Data</button>
 </div>
-{{ contents }}
+
+<script>
+    $('#table_id').DataTable();
+</script>
+
+
 <script src="{% static 'js/echarts.js.map' %}"></script>
 <script src="{% static 'js/echarts.js' %}"></script>
 <script src="{% static 'js/echarts.min.js' %}"></script>
