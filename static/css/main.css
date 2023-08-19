@@ -1,15 +1,3 @@
-@font-face {
-  font-family: 'Giants-Bold';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2307-1@1.1/Giants-Bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-}
-@font-face {
-  font-family: 'KOTRA_BOLD-Bold';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-10-21@1.1/KOTRA_BOLD-Bold.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-}
 .bd-placeholder-img {
     font-size: 1.125rem;
     text-anchor: middle;
