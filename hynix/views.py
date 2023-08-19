@@ -10,7 +10,11 @@ def simulation(request):
 
 
 def lifecycle(request):
-    return render(request, "hynix/model_lifecycle.html", {"contents":"mlc page"})
+    return render(request, "hynix/model_lifecycle.html", {"contents": "mlc page"})
+
+
+
+
 
 
 

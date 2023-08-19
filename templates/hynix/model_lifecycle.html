@@ -4,17 +4,17 @@
 {% block main %}
 <div style="text-align: center;">
     <div id="Chart" style="width: 1200px; height: 600px; margin: 0 auto;"></div>
+
+    <!-- 여백을 추가해주세요 -->
+    <div style="margin-bottom: 20px;"></div>
+
+    <input type="date" id="selectedDate">
+    <input type="file" id="csvFile">
+    <button id="loadData">Load Data</button>
 </div>
 {{ contents }}
 <script src="{% static 'js/echarts.js.map' %}"></script>
 <script src="{% static 'js/echarts.js' %}"></script>
 <script src="{% static 'js/echarts.min.js' %}"></script>
-<script src={% static 'js/chart.js' %} type="module"></script>
+<script src="{% static 'js/chart.js' %}" type="module"></script>
 {% endblock %}
-
-
-
-
-
-
-
