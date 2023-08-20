@@ -17,7 +17,24 @@
   font-weight: normal;
   font-style: normal;
 }
+@font-face {
+  font-family: 'yg-jalnan';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_four@1.2/JalnanOTF00.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+     font-family: 'S-CoreDream-3Light';
+     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-3Light.woff') format('woff');
+     font-weight: normal;
+     font-style: normal;
+}
 
+
+/* header */
+.header_wrapper {
+  height:56px;
+}
 .nava.active{
   background-color: transparent !important;
 }
@@ -30,11 +47,6 @@
 .navli:nth-child(2) :hover{
   color:#f58025 !important;
 }
-
-/* footer */
-.footer {
-  background-color: rgb(219, 219, 219);
-}
 .navbar-brand {
   padding-top: 0.3125rem !important;
   padding-bottom: 0.3125rem !important;
@@ -43,8 +55,14 @@
   text-decoration: none !important;
   white-space: nowrap !important;
 }
+
+
+/* main */
 .container {
   padding-bottom: 0px !important;
+}
+.main_wrapper {
+  min-height: calc(100vh - 10rem); 
 }
 
 /* back to top */

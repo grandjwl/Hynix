@@ -74,17 +74,21 @@
 .bg-body-tertiary {
   padding-top:0px !important; 
 }
-
 .bt {
+  font-family: "GangwonState";
   border:none;
   width: 190px;
   height: 50px;
-  line-height: 38px;
-  font-size: 18px;
-  font-weight: 500;
+  line-height: 50px;
+  font-size: 20px;
+  font-weight: 100;
+  color:white;
+  border-radius: 0.2rem;
+  text-decoration: none;
+  display: inline-block;
 }
-.bt:active {
-  background-color: #aaaaaa !important;
+.bt:hover {
+  color:white;
 }
 .bt1{
   background-color: #e31837;
@@ -104,14 +108,114 @@
   background-color: #f58025;
   opacity: 1;
 }
-#main_title {
+.main_title {
   font-family: 'Giants-Bold' !important;
-  display: inline;
+  display: inline-block;
 }
-#main_title2 {
-  display: inline;
+.main_title2 {
+  display: inline-block;
   font-family: 'KOTRA_BOLD-Bold' !important;
-  margin:0px;
-  line-height: 58px;
-  color:#e31837
+  color:#e31837;
+}
+.main_title3 {
+  display: inline-block;
+  font-family: 'KOTRA_BOLD-Bold' !important;
+  color:#f58025;
+}
+.col-lg-6 {
+  width: 80% !important;
+}
+
+/*slider*/
+.page-wrapper {
+  height: 100%;
+}
+.bg-body-tertiary {
+  background-color: #e31837;
+}
+.post-slider{
+  width:100%;
+  height: 100%;
+  margin:0px auto;
+  position:relative;
+}
+.post-slider h2 {
+  padding-top:50px;
+  padding-bottom: 20px;
+  font-family: 'Giants-Bold';
+  color:white;
+}
+.post-slider .silder-title{
+  text-align:center;
+  margin:10px auto;
+}
+.post-slider .next{
+  z-index: 999;
+  width: 50px !important;
+  height: 50px !important;
+  position:absolute;
+  top:57%;
+  right:25px;
+  font-size:2em;
+  cursor: pointer;
+}
+.post-slider .prev{
+  z-index: 999;
+  width: 50px !important;
+  height: 50px !important;
+  position:absolute;
+  top:57%;
+  left:40px;
+  font-size:2em;
+  cursor: pointer;
+}
+.post-slider .post-wrapper{
+
+  width:84%;
+  height:380px;
+  margin:0px auto;
+  overflow: hidden;
+  padding:10px 0px 10px 0px;
+}
+.post-slider .post-wrapper .post{
+  width:300px;
+  height:380px;
+  margin:0px 10px;
+  display:inline-block;
+  background:white;
+  border-radius: 5px;
+}
+.post-slider .post-wrapper .post .post-info{
+  font-size:15px;
+  height:30%;
+  padding-left:10px;
+}
+.post-slider .post-wrapper .post .slider-image{
+  width:100%;
+  height:175px;
+  border-top-left-radius:5px;
+  border-top-right-radius:5px;
+}
+.slick-list .draggable {
+  height: 300px !important;
+}
+.col {
+  padding: 5px;
+}
+.shadow-sm img{
+  border-bottom: solid 2px #e31837;
+}
+.btn-group {
+  border-radius: 0.2rem;
+  width:50px;
+  border: solid 1px #aaaaaa;
+}
+.btn-group a{
+  border: none;
+  /* color:white; */
+  font-family: 'S-CoreDream-3Light';
+  font-weight: bold;
+}
+.card {
+  height: 330px;
 }
