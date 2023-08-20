@@ -19,7 +19,7 @@
   </head>
 
   <body>
-    <header data-bs-theme="dark">
+    <header data-bs-theme="dark" class="header_wrapper">
       <div class="navbar navbar-dark bg-dark shadow-sm">
         <div class="container">
           <a href="{% url 'main' %}" class="navbar-brand d-flex align-items-center">
@@ -54,7 +54,7 @@
       </div>
     </header>
 
-    <main>
+    <main class="main_wrapper">
       <div id="wrap">
         <a id="top_btn" class="">
           <img src="{% static 'img/arrow.png' %}" width="40" height="40">
@@ -64,14 +64,11 @@
       {% endblock %}
     </main>
 
-    <footer class="text-body-secondary py-5 footer">
-      <div class="container">
-        <p class="mb-1">&copy; SK Hynix X Tacademy</p>
-      </div>
-    </footer>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/base.js' %}"></script>
+    {% block scripts %}
+    {% endblock %}
     
   </body>
 </html>

@@ -3,6 +3,7 @@
 
 {% block head %}
 <link href="{% static 'css/main.css' %}" rel="stylesheet">
+<link href="{% static 'css/slick.css' %}" rel="stylesheet">
 {% endblock %}
 
   {% block main %}
@@ -10,73 +11,188 @@
     <section class="py-5 text-center container">
       <div class="row py-lg-5">
         <div class="col-lg-6 col-md-8 mx-auto">
-          <h1 id="main_title">SK Hynix </h1>
-          <h1 id="main_title2"> X </h1>
-          <h1 id="main_title"> Tacademy</h1>
           <br><br>
-          <p class="lead text-body-secondary">반도체의 수율을 예측하는 프로젝트(임시)</p>
-          <br>
+          <h1 class="main_title">인라인 </h1>
+          <h1 class="main_title2">Fab </h1>
+          <h1 class="main_title">데이터를 활용한 </h1>
+          <h1 class="main_title3">수율 </h1>
+          <h1 class="main_title">시뮬레이터</h1>
+          <br><br>
+          <!-- <p class="lead text-body-secondary">SK Hynix</p> -->
+          <div class="imgs">
+            <img src="{% static 'img/sk.png' %}" width="120" height="60">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <img src="{% static 'img/x.png' %}" width="35" height="35" style="margin-top: 25px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <img src="{% static 'img/tacademy.png' %}" width="125" height="50" style="margin-top: 10px;">
+          </div>
+          
+          <br><br><br>
           <p>
-            <a href="{% url 'simulator' %}" class="btn btn-primary my-2 bt1 bt">Simulate</a>
-            <a href="{% url 'mlc' %}" class="btn btn-secondary my-2 bt2 bt">Life Cycle Check</a>
+            <a href="{% url 'simulator' %}" class="bt1 bt">Simulate</a>
+            <a href="{% url 'mlc' %}" class="bt2 bt">Life Cycle Check</a>
           </p>
         </div>
       </div>
     </section>
-
+    <br>
     <div class="album py-5 bg-body-tertiary">
       <div class="container">
+        <!-- blog slider -->
+        <div class="page-wrapper" style="position:relative;">
+          <!--page slider -->
+          <div class="post-slider">
+            <h2 class="silder-title">SK Hynix Newsroom</h2>
+            <i class="fas fa-chevron-left prev">
+              <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="white" class="bi bi-caret-left-fill" viewBox="0 0 50 50">
+                <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
+              </svg>
+            </i>
+            <i class="fas fa-chevron-right next">
+              <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="white" class="bi bi-caret-right-fill" viewBox="0 0 50 50">
+                <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
+              </svg>
+            </i>
+            <div class="post-wrapper">
 
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-          <div class="col">
-            <div class="card shadow-sm">
-              <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"/><text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text></svg>
-              <div class="card-body">
-                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="btn-group">
-                    <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+              <div class="col">
+                <div class="card shadow-sm">
+                  <img class="bd-placeholder-img card-img-top" src="{% static 'img/1.jpg' %}" width="100%" height="200" >
+                  <div class="card-body">
+                    <p class="card-text"><strong>[반도체 전공정 1편]</strong><br>컴퓨터, 트랜지스터의 탄생과 반도체</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="btn-group">
+                        <a href="https://news.skhynix.co.kr/post/jeonginseong-column-computer" class="btn btn-sm btn-outline-secondary">Go</a>
+                      </div>
+                    </div>
                   </div>
-                  <small class="text-body-secondary">9 mins</small>
                 </div>
               </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card shadow-sm">
-              <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"/><text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text></svg>
-              <div class="card-body">
-                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="btn-group">
-                    <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+              <div class="col">
+                <div class="card shadow-sm">
+                  <img class="bd-placeholder-img card-img-top" src="{% static 'img/2.jpg' %}" width="100%" height="200" >
+                  <div class="card-body">
+                    <p class="card-text"><strong>[반도체 전공정 2편]</strong><br>반도체 공정 개괄과 산화</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="btn-group">
+                        <a href="https://news.skhynix.co.kr/post/jeonginseong-column-oxidation" class="btn btn-sm btn-outline-secondary">Go</a>
+                      </div>
+                    </div>
                   </div>
-                  <small class="text-body-secondary">9 mins</small>
                 </div>
               </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card shadow-sm">
-              <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"/><text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text></svg>
-              <div class="card-body">
-                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="btn-group">
-                    <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+              <div class="col">
+                <div class="card shadow-sm">
+                  <img class="bd-placeholder-img card-img-top" src="{% static 'img/3.jpg' %}" width="100%" height="200" >
+                  <div class="card-body">
+                    <p class="card-text"><strong>[반도체 전공정 3편]</strong><br>반도체 패턴을 만드는 포토 공정</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="btn-group">
+                        <a href="https://news.skhynix.co.kr/post/jeonginseong-column-photo" class="btn btn-sm btn-outline-secondary">Go</a>
+                      </div>
+                    </div>
                   </div>
-                  <small class="text-body-secondary">9 mins</small>
                 </div>
               </div>
+              <div class="col">
+                <div class="card shadow-sm">
+                  <img class="bd-placeholder-img card-img-top" src="{% static 'img/4.jpg' %}" width="100%" height="200" >
+                  <div class="card-body">
+                    <p class="card-text"><strong>[반도체 전공정 4편]</strong><br>그려진 패턴을 파내는 ‘식각 공정’</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="btn-group">
+                        <a href="https://news.skhynix.co.kr/post/jeonginseong-column-etching" class="btn btn-sm btn-outline-secondary">Go</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="card shadow-sm">
+                  <img class="bd-placeholder-img card-img-top" src="{% static 'img/5.jpg' %}" width="100%" height="200" >
+                  <div class="card-body">
+                    <p class="card-text"><strong>[반도체 전공정 5편]</strong><br>미세화를 위한 핵심 ‘증착 공정’</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="btn-group">
+                        <a href="https://news.skhynix.co.kr/post/jeonginseong-column-deposition" class="btn btn-sm btn-outline-secondary">Go</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="card shadow-sm">
+                  <img class="bd-placeholder-img card-img-top" src="{% static 'img/6.jpg' %}" width="100%" height="200" >
+                  <div class="card-body">
+                    <p class="card-text"><strong>[반도체 전공정 6편]</strong><br>반도체에 생명을 불어넣는 연결, ‘금속배선’</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="btn-group">
+                        <a href="https://news.skhynix.co.kr/post/jeonginseong-column-metallization" class="btn btn-sm btn-outline-secondary">Go</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
+          <!--post slider-->
         </div>
+
+        <!-- <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 slider">
+
+          <div class="col">
+            <div class="card shadow-sm">
+              <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"/><text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text></svg>
+              <div class="card-body">
+                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+                  </div>
+                  <small class="text-body-secondary">9 mins</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card shadow-sm">
+              <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"/><text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text></svg>
+              <div class="card-body">
+                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+                  </div>
+                  <small class="text-body-secondary">9 mins</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card shadow-sm">
+              <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"/><text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text></svg>
+              <div class="card-body">
+                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+                  </div>
+                  <small class="text-body-secondary">9 mins</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div> -->
       </div>
     </div>
 
   </main>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.2/echarts.min.js"></script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/slick.min.js' %}"></script>
+<script src="{% static 'js/main.js' %}"></script>
 {% endblock %}
