@@ -704,11 +704,6 @@ def process_file(test_data_file):
     predictions = get_predictions(test_data)
     return predictions
 
-# # Django의 ORM을 사용하여 DB에 예측 결과를 저장하는 데이터 모델 정의
-# class Prediction(dj_models.Model):
-#     date_created = dj_models.DateTimeField(auto_now_add=True) # 생성 날짜, 시간 저장
-#     csv_file = dj_models.FileField(upload_to='predictions/') # 예측 결과 CSV 파일을 저장
-
 def simulation(request):
     test_data_html = "<h1>simulator page</h1>"
     prediction = None
