@@ -61,8 +61,8 @@
 .container {
   padding-bottom: 0px !important;
 }
-.main_wrapper {
-  min-height: calc(100vh - 10rem); 
+body{
+  height: 100%;
 }
 
 /* back to top */
