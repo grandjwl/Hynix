@@ -706,7 +706,7 @@ def process_file(test_data_file):
 def simulation(request):
     test_data_html = "<h1>simulator page</h1>"
     prediction = None
-    test_data_json = '{}'  # 초기화
+    test_data_json = '{}'  # 함수 시작 부분에서 초기화
 
     if request.method == "POST":
         if 'test_data' in request.FILES:
@@ -716,8 +716,13 @@ def simulation(request):
             test_data = pd.read_csv(test_data_file)
             test_data_html = test_data.head(10).to_html()
             
-            # ID 컬럼을 key로 하는 json 생성
-            test_data_json = test_data.head(10).set_index('ID').to_json(orient='index')
+            try:
+                # ID 컬럼을 key로 하는 json 생성
+                test_data_json = test_data.head(10).set_index('ID').to_json(orient='index')
+            except Exception as e: # JSON 변환 과정에서 오류가 발생하더라도 코드는 계속 실행
+                test_data_json = '{}'
+                # 로깅을 사용해 오류 기록
+                print(f"Error converting data to JSON: {e}")
             
             if 'run' in request.POST:
                 # 'Run' 버튼이 클릭 시, 예측 실행
@@ -734,7 +739,6 @@ def simulation(request):
                 return response
 
     return render(request, "hynix/simulation.html", {"contents": test_data_html, "prediction": prediction, "data_json": test_data_json})
-
 
 def lifecycle(request):
     data = []
