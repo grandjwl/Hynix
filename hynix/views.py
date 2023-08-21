@@ -740,7 +740,7 @@ def simulation(request):
 
 
 # def lifecycle(request):
-#     return render(request, "hynix/model_lifecycle.html")
+#     return render(request, "hynix/lifecycle.html")
 
 def lifecycle(request):
     data = []
