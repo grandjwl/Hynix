@@ -108,6 +108,10 @@
   background-color: #f58025;
   opacity: 1;
 }
+.mx-auto h1 {
+  vertical-align: text-top;
+  font-size: 40px;
+}
 .main_title {
   font-family: 'Giants-Bold' !important;
   display: inline-block;
