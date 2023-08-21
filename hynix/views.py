@@ -4,7 +4,6 @@ from django.core.files.base import ContentFile
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Prediction
-from .ensemble_module import get_predictions
 import pandas as pd
 import numpy as np
 import shutil
@@ -27,7 +26,6 @@ import torch.nn as nn
 import random
 import torch.backends.cudnn as cudnn
 from torch.utils.data import Dataset, DataLoader, TensorDataset
-from pycaret.regression import *
 
 def main(request):
     return render(request, 'hynix/main.html',{"contents":"<h1>main page</h1>"})
