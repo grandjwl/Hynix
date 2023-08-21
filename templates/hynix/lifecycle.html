@@ -1,0 +1,67 @@
+{% extends "hynix/base.html" %}
+{% load static %}
+
+{% block main %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.7.0/css/select.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/datetime/1.5.1/css/dataTables.dateTime.min.css">
+<link rel="stylesheet" type="text/css" href="https://editor.datatables.net/extensions/Editor/css/editor.dataTables.min.css">
+
+
+<div style="text-align: center;">
+    <div id="Chart" style="width: 1200px; height: 600px; margin: 0 auto;"></div>
+    
+    <!-- 여백을 추가해주세요 -->
+    <div style="margin-bottom: 60px;"></div>
+    
+   <!-- 표 크기 조절 및 가운데 정렬 -->
+    <div style="width: 60%; margin: 0 auto;">
+        <table id="table_id" class="display">
+            <thead>
+                <tr>
+                    <th>Datetime</th>
+                    <th>Lot-ID</th>
+                    <th>Pred</th>
+                    <th>Real</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in data %}
+                    <tr>
+                        <td>{{ item.datetime }}</td>
+                        <td>{{ item.lot_id }}</td>
+                        <td>{{ item.pred }}</td>
+                        <td>{{ item.real }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+    <!-- 표와 그래프 사이 여백 -->
+    <div style="margin-top: 60px;"></div>
+    
+    <!-- 데이터 로드 버튼 -->
+    <button id="loadData">Load Data</button>
+</div>
+
+
+
+
+
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'js/echarts.js.map' %}"></script>
+<script src="{% static 'js/echarts.js' %}"></script>
+<script src="{% static 'js/echarts.min.js' %}"></script>
+<script src="{% static 'js/chart.js' %}" type="module"></script>
+<script src="{% static 'js/datatableEdit.js' %}"></script>
+<script src="{% static 'js/lifecycle.js' %}"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://editor.datatables.net/extensions/Editor/js/dataTables.editor.min.js"></script>
+{% endblock %}
