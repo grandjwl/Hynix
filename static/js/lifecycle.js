@@ -16,11 +16,6 @@ $(document).ready(function () {
         $(this).addClass("active-page");
     });
 
-    // $(".paginate_button").click(function () {
-    //     const pagenum = document.querySelector(".paginate_button");
-    //     pagenum.style.backgroundColor = "red";
-    // });
-
     // 데이터 테이블 페이지 변경 시 스타일 변경
     table.on("page.dt", function () {
         $(".paginate_button").removeClass("active-page");
