@@ -1,6 +1,16 @@
 // 대시보드 showing 함수
 function ShowChart() {
+  const table = document.querySelector(".table-responsive"),
+    btn1 = table.querySelector(".reupload"),
+    btn2 = table.querySelector(".pred");
   var chartDom = document.getElementById('chart');
+  btn2.onclick = () => {
+    btn1.style.display = "none";
+    btn2.style.display = "none";
+    chartDom.style.display = "block";
+  };
+
+  
   var myChart = echarts.init(chartDom);
   var option;
 
@@ -140,15 +150,21 @@ function ShowTable() {
       table.style.display = "block";
     };
 }
-// side bar
-// (() => {
-//   'use strict'
-//   const tooltipTriggerList = Array.from(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-//   tooltipTriggerList.forEach(tooltipTriggerEl => {
-//     new bootstrap.Tooltip(tooltipTriggerEl)
-//   })
-// })()
+
+// showing file upload ui
+function ShowFileUpload() {
+  const table = document.querySelector(".table-responsive"),
+    btn = table.querySelector(".reupload"),
+    area = document.querySelector(".file_upload_container");
+
+  btn.onclick = () => {
+    table.style.display = "none";
+    area.style.display = "block";
+  };
+
+}
 
 ShowTable();
 DragDrop();
 ShowChart();
+ShowFileUpload();

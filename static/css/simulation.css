@@ -204,5 +204,91 @@ header h5 {
 
 /* table */
 .table {
+  text-align: center;
+  --bs-table-striped-bg : none;
+  border-collapse: collapse !important;
+}
+thead {
+  background-color: #e66377;
+  border:none;
+  height: 40px;
+  line-height: 35px;
+
+}
+thead tr {
+  color:white;
+}
+tbody {
+  border: 1px dashed #929292 !important;
+  background-color: white;
+}
+tbody tr td{
+  border-bottom: 1px dashed #929292;
+  background-color: white;
+}
+
+
   
+/* button */
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+.clearfix {
+  zoom: 1;
+}
+.clearfix:before, .clearfix:after {
+  content: "\0020";
+  display: block;
+  height: 0;
+  overflow: hidden;
+}
+.clearfix:after {
+  clear: both;
+}
+
+.btn {
+  width: 150px;
+  height: 50px;
+  background: #de4058;
+  color: #fafafa;
+  display: block;
+  text-decoration: none;
+  border-radius: 0.5em;
+  font-size: 1em;
+  font-family: 'Source Sans Pro', sans-serif;
+  box-shadow: 0 0.75em 0 #e31837, 0 1.25em 0 0.35em;
+  text-align: center;
+  padding: 0.5em 0.5em 0.5em;
+  position: relative;
+  -webkit-transition: all .1s;
+  transition: all .1s;
+}
+.btn:hover, .btn:focus {
+  -webkit-transition: all .25s;
+  transition: all .25s;
+  background: #fafafa;
+  color: #66cbff;
+  box-shadow: 0 0.75em 0 #c2c2c2, 0 1.25em 0 0.35em #c9e8e3;
+}
+.btn:active {
+  box-shadow: 0 0 0 0.35em #c9e8e3;
+  -webkit-transform: translate(0, 1.25em);
+          transform: translate(0, 1.25em);
+  -webkit-transition: all .1s;
+  transition: all .1s;
+}
+
+.top {
+  font-size: 0.8em;
+  letter-spacing: .08em;
+}
+
+.btm {
+  font-size: 1.5em;
+}
+
+.btn span{
+  display: block;
 }
