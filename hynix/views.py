@@ -732,14 +732,18 @@ def simulation(request):
 
 
 
-# def lifecycle(request):
-#     return render(request, "hynix/model_lifecycle.html")
 
 
 
+
+
+
+
+
+
+# 정우 
 # def lifecycle(request):
 #     return render(request, "hynix/lifecycle.html")
-
 def lifecycle(request):
     data = []
     for i in range(1, 101):
