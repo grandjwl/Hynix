@@ -109,8 +109,9 @@ function ShowChart() {
 function DragDrop() {
   const dropArea1 = document.querySelector(".drop_box1"),
     dropArea2 = document.querySelector(".drop_box2"),
-    button = dropArea1.querySelector("button"),
-    input = dropArea1.querySelector("input");
+    button = dropArea1.querySelector(".choose_btn"),
+    input = dropArea1.querySelector("input"),
+    text = dropArea2.querySelector("h5");
 
   button.onclick = () => {
     input.click();
@@ -118,11 +119,12 @@ function DragDrop() {
 
   input.addEventListener("change", function (e) {
     dropArea1.style.display = "none";
-    dropArea2.style.display = "flex";
+    dropArea2.style.display = "block";
 
+    text.style.display="none";
     var fileName = e.target.files[0].name;
-    let filedata = `<h4>${fileName}</h4>`;
-    document.getElementById("filename").innerHTML=filedata;
+    let filedata = `<h5><b>${fileName}</b></h5>`;
+    document.getElementById("filename").innerHTML+=filedata;
   });
 }
 
@@ -138,6 +140,14 @@ function ShowTable() {
       table.style.display = "block";
     };
 }
+// side bar
+// (() => {
+//   'use strict'
+//   const tooltipTriggerList = Array.from(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+//   tooltipTriggerList.forEach(tooltipTriggerEl => {
+//     new bootstrap.Tooltip(tooltipTriggerEl)
+//   })
+// })()
 
 ShowTable();
 DragDrop();

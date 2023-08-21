@@ -10,9 +10,49 @@
 {% block main %}
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <!-- sidebar -->
+        <!-- <div class="p-3 bg-body-tertiary sidebar" style="width: 280px;">
+            <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+              <svg class="bi pe-none me-2" width="40" height="32"><use xlink:href="#bootstrap"/></svg>
+              <span class="fs-4">Sidebar</span>
+            </a>
+            <hr>
+            <ul class="nav nav-pills flex-column mb-auto">
+              <li class="nav-item">
+                <a href="#" class="nav-link active" aria-current="page">
+                  <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#home"/></svg>
+                  Upload File
+                </a>
+              </li>
+              <li>
+                <a href="#" class="nav-link link-body-emphasis">
+                  <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#speedometer2"/></svg>
+                  Dashboard
+                </a>
+              </li>
+              <li>
+                <a href="#" class="nav-link link-body-emphasis">
+                  <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#table"/></svg>
+                  Orders
+                </a>
+              </li>
+              <li>
+                <a href="#" class="nav-link link-body-emphasis">
+                  <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#grid"/></svg>
+                  Products
+                </a>
+              </li>
+              <li>
+                <a href="#" class="nav-link link-body-emphasis">
+                  <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#people-circle"/></svg>
+                  Customers
+                </a>
+              </li>
+            </ul>
+          </div> -->
+        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4 box">
             <!-- 그래프 상단 메뉴 -->
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom" style="display: none !important;">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
                 <h1 class="h2">Simulator</h1>
                 <!-- <div class="btn-toolbar mb-2 mb-md-0">
                     <div class="btn-group me-2">
@@ -24,26 +64,32 @@
         
             <!-- file upload -->
             <div class="file_upload_container">
-                <div class="card">
-                    <div class="drop_box1">
-                        <header>
-                            <h4>Select CSV File To Upload</h4>
-                        </header>
-                        <p>Files Supported: CSV</p>
-                        <input type="file" hidden accept=".csv" id="fileID" style="display:none;">
-                        <button class="choose_btn">Choose File</button>
-                    </div>
-                    <div class="drop_box2" style="display: none;">
-                        <br>
-                        <header id="filename"></header>
-                        <br>
-                        <form action="" method="post">
-                            {% csrf_token %}
-                            <button type="button" class="upload_btn" id="upload_btn">Upload</button>
-                        </form>
-                    </div>
+              <div class="card">
+                
+                <div class="drop_box1">
+                  <header>
+                    <img src="{% static 'img/upload.png' %}" alt="" class="uploaded-image">
+                    <br>
+                    <h5><b>Choose Your File to Upload</b></h5>
+                  </header>
+                  <input type="file" hidden accept=".csv" name="file_name" style="display: none;">
+                  <button class="choose_btn">Choose File</button>
                 </div>
+
+                <div class="drop_box2" style="display:none;">
+                  <header id="filename">
+                    <img src="{% static 'img/upload.png' %}" alt="" class="uploaded-image">
+                    <br>
+                    <h5><b>Press to Upload</b></h5>
+                  </header>
+                  <form action="" method="post">
+                    {% csrf_token %}
+                    <button type="button" class="upload_btn" id="upload_btn">Upload</button>
+                  </form>
+                </div>
+              </div>
             </div>
+
 
             <!-- dashboard -->
             <div id="chart" style="width:1220px;height:500px;display:none;"></div>
