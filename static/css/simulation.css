@@ -78,98 +78,147 @@ z-index: 1500;
 .offcanvas-end {
     transform: none !important;
 }
-.px-md-4 {
-  margin:0px !important;
-  width:100% !important;
+.container-fluid, .row, .box {
+  height: 100% !important;
+}
+.box {
+  padding-bottom: 20px;
+}
+.container-fluid {
+  margin-top: 50px;
+}
+.box {
+  background-color: #e31837;
+  height: 85vh !important;
+  border-radius: 0.8rem 0.8rem 0 0;
+}
+.box div h1 {
+  font-family: 'Giants-Bold' !important;
+  display: inline-block;
+  color:white;
+  margin-top: 10px;
 }
 
 /* drag&drop */
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap');
-
-.file_upload_container {
-  margin-bottom:16px;
-  height: 500px;
-  width: 100%;
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  background-color: #fcfcfc;
+.card .drop_box1, .card .drop_box2 {
+  padding: 30px 35px;
+  padding-top: 50px;
+  height : 65vh;
 }
-
 .card {
-  border-radius: 10px;
-  box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.3);
-  width: 800px;
-  height: 350px;
-  background-color: #ffffff;
-  padding: 20px 30px;
+  height : 65vh;
+  width: 80%;
+  margin:auto;
 }
-
-.card h3 {
-  font-size: 22px;
-  font-weight: 600;
-  
+.drop_box1 header, .drop_box2 header {
+  margin-top: 50px;
 }
-
 .drop_box1, .drop_box2 {
-  height: 320px;
-  margin: 10px 0;
-  padding: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  border: 3px dotted #a3a3a3;
-  border-radius: 5px;
-}
-
-.drop_box1 h4, .drop_box2 h4 {
-  font-size: 16px;
-  font-weight: 400;
-  color: #2e2e2e;
-}
-
-.drop_box1 p, .drop_box2 p {
-  margin-top: 10px;
-  margin-bottom: 20px;
-  font-size: 12px;
-  color: #a3a3a3;
-}
-
-.upload_btn, .choose_btn {
-  text-decoration: none;
-  background-color: #e31837;
-  color: #ffffff;
-  padding: 10px 20px;
-  border: none;
-  outline: none;
-  transition: 0.3s;
-}
-
-.upload_btn:hover, .choose_btn:hover{
-  text-decoration: none;
-  background-color: #f58025;
-  color: #ffffff;
-  padding: 10px 20px;
-  border: none;
-}
-.form input {
-  margin: 10px 0;
   width: 100%;
-  background-color: #e2e2e2;
-  border: none;
-  outline: none;
-  padding: 12px 20px;
+  height: 300px;
+  border: 1px dashed #ddd;
+  border-radius: 5px;
+  position: relative;
+  text-align: center;
+  background: #f8f8f9;
+  color: #666;
+  overflow: hidden;
+}
+
+.file_upload_container img {
+  margin-bottom: 20px;
+  width: auto;
+  height: auto;
+  max-height: 150px;
+  width: auto;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.drop_box1 img, .drop_box2 img {
+  height: 100%!important;
+  width: auto!important;
+  border-radius: 0px;
+  margin: 0 auto;
+}
+.drop_box1 i, .drop_box2 i {
+  font-size: 6em;
+  color: #ccc;
+}
+.drop_box1 input, .drop_box2 input {
+  cursor: pointer;
+  opacity: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 10;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.item-wrapper input {
+  height: 43px;
+  line-height: 43px;
+  border: 1px solid #ddd;
   border-radius: 4px;
+  margin-bottom: 20px;
 }
-.card h4{
-  font-family: 'yg-jalnan';
-  font-size: 30px;
+.drop_box1 label, .drop_box2 label {
+  margin-top: 30px;
 }
-.card p{
-  font-family: 'S-CoreDream-3Light';
-  font-size: 15px;
-  font-weight: bold;
-  font-style: bold;
+.px-md-4 {
+  margin: auto;
 }
+header h5 {
+  margin-bottom: 20px;
+}
+
+
+/* sidebar */
+/* .container-fluid .row {
+  height: 100%;
+}
+.dropdown-toggle { outline: 0; }
+
+.btn-toggle {
+  padding: .25rem .5rem;
+  font-weight: 600;
+  color: var(--bs-emphasis-color);
+  background-color: transparent;
+}
+.btn-toggle:hover,
+.btn-toggle:focus {
+  color: rgba(var(--bs-emphasis-color-rgb), .85);
+  background-color: var(--bs-tertiary-bg);
+}
+
+.btn-toggle::before {
+  width: 1.25em;
+  line-height: 0;
+  content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='rgba%280,0,0,.5%29' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 14l6-6-6-6'/%3e%3c/svg%3e");
+  transition: transform .35s ease;
+  transform-origin: .5em 50%;
+}
+
+[data-bs-theme="dark"] .btn-toggle::before {
+  content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='rgba%28255,255,255,.5%29' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 14l6-6-6-6'/%3e%3c/svg%3e");
+}
+
+.btn-toggle[aria-expanded="true"] {
+  color: rgba(var(--bs-emphasis-color-rgb), .85);
+}
+.btn-toggle[aria-expanded="true"]::before {
+  transform: rotate(90deg);
+}
+
+.btn-toggle-nav a {
+  padding: .1875rem .5rem;
+  margin-top: .125rem;
+  margin-left: 1.25rem;
+}
+.btn-toggle-nav a:hover,
+.btn-toggle-nav a:focus {
+  background-color: var(--bs-tertiary-bg);
+}
+
+.scrollarea {
+  overflow-y: auto;
+} */
