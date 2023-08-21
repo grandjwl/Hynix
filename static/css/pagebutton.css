@@ -4,15 +4,16 @@
     align-items: center;
 }
 
-.page-number {
+.paginate_button {
     padding: 5px 10px;
     margin: 0 5px;
-    border: 1px solid #9f2c2c;
+    border: 1px solid #9f2c2c !important;
     cursor: pointer;
 }
 
-.page-number.active {
-    background-color: #7f2222;
-    color: #8d1e1e;
-    border-color: #9c0b1e;
+.paginate_button.active {
+    background-color: #7f2222 !important;
+    color: #8d1e1e !important;
+    border-color: #9c0b1e !important;
 }
+
