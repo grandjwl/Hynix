@@ -30,10 +30,11 @@ from torch.utils.data import Dataset, DataLoader, TensorDataset
 def main(request):
     return render(request, 'hynix/main.html',{"contents":"<h1>main page</h1>"})
 
-# test = pd.read_csv("C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/ensemble/dataset/testset.csv")
+# test = pd.read_csv('C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/4. web_django/hynix_fab_project/hynix/ensemble/dataset')
 
 def get_predictions(test_data):
     test = test_data
+    test.drop(columns=['Date'], inplace = True)
 
     # 동연
     torch.manual_seed(1234)
@@ -705,14 +706,23 @@ def process_file(test_data_file):
 def simulation(request):
     test_data_html = "<h1>simulator page</h1>"
     prediction = None
+    test_data_json = '{}'  # 함수 시작 부분에서 초기화
 
     if request.method == "POST":
         if 'test_data' in request.FILES:
             test_data_file = request.FILES['test_data']
             
-            # 파일 내용을 보여주기 위해 데이터를 읽기
+            # 파일 내용을 보여주기 위해 데이터 읽기
             test_data = pd.read_csv(test_data_file)
-            test_data_html = test_data.to_html()
+            test_data_html = test_data.head(10).to_html()
+            
+            try:
+                # ID 컬럼을 key로 하는 json 생성
+                test_data_json = test_data.head(10).set_index('ID').to_json(orient='index')
+            except Exception as e: # JSON 변환 과정에서 오류가 발생하더라도 코드는 계속 실행
+                test_data_json = '{}'
+                # 로깅을 사용해 오류 기록
+                print(f"Error converting data to JSON: {e}")
             
             if 'run' in request.POST:
                 # 'Run' 버튼이 클릭 시, 예측 실행
@@ -728,22 +738,8 @@ def simulation(request):
 
                 return response
 
-    return render(request, "hynix/simulation.html", {"contents": test_data_html, "prediction": prediction})
+    return render(request, "hynix/simulation.html", {"contents": test_data_html, "prediction": prediction, "data_json": test_data_json})
 
-
-
-
-
-
-
-
-
-
-
-
-# 정우 
-# def lifecycle(request):
-#     return render(request, "hynix/lifecycle.html")
 def lifecycle(request):
     data = []
     for i in range(1, 101):
