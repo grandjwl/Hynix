@@ -740,6 +740,9 @@ def simulation(request):
 
     return render(request, "hynix/simulation.html", {"contents": test_data_html, "prediction": prediction, "data_json": test_data_json})
 
+
+
+#정우
 def lifecycle(request):
     data = []
     for i in range(1, 101):

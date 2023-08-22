@@ -24,13 +24,19 @@ var option = {
   xAxis: {
     type: 'category',
     data: initialMseData.map(item => item.date),
+    name: 'Date', // x축 이름 설정
+    nameTextStyle: {
+      color: 'black',
+      fontSize: 20,
+      fontWeight: 'bold'
+    },
     axisLabel: {   
       formatter: '{value}', 
       rotate: 45,  
-      textStyle: {  // 날짜 레이블 스타일
-        color: 'black',  // 텍스트 색상을 검정색으로 변경
-        fontSize: 15,    // 텍스트 크기 조정
-        fontWeight: 'bold', // 텍스트 굵기 설정
+      textStyle: {  
+        color: 'black',  
+        fontSize: 15,   
+        fontWeight: 'bold', 
       }
     }
   },
@@ -59,8 +65,21 @@ var option = {
     {
       data: initialMseData.map(item => item.delta),
       type: 'line',
+      lineStyle: { // 기본 그래프 선 스타일
+        color: 'blue', // 파란색으로 변경
+      },
       markLine: {
-        data: [{ yAxis: 5, label: { show: true, fontWeight: 'bold', color: 'black' } }],
+        data: [
+          {
+            yAxis: 5,
+            label: {
+              show: true,
+              fontWeight: 'bold',
+              color: 'red',
+              formatter: 'Threshold' // 여기에 표시할 내용을 넣어주세요
+            }
+          }
+        ],
         lineStyle: {
           color: 'red',
         },
