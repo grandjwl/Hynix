@@ -115,41 +115,49 @@ function ShowChart() {
   option && myChart.setOption(option);
 };
 
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+// file upload form
+$('#chooseFile').bind('change', function () {
+  var filename = $("#chooseFile").val();
+  if (/^\s*$/.test(filename)) {
+    $(".file-upload").removeClass('active');
+    $("#noFile").text("No file chosen..."); 
+  }
+  else {
+    $(".file-upload").addClass('active');
+    $("#noFile").text(filename.replace("C:\\fakepath\\", "")); 
+  }
+});
+
 // drag&drop file upload
 function DragDrop() {
   const dropArea1 = document.querySelector(".drop_box1"),
-    dropArea2 = document.querySelector(".drop_box2"),
-    button = dropArea1.querySelector(".choose_btn"),
-    input = dropArea1.querySelector("input"),
-    text = dropArea2.querySelector("h5");
-
-  button.onclick = () => {
-    input.click();
-  };
-
-  input.addEventListener("change", function (e) {
-    dropArea1.style.display = "none";
-    dropArea2.style.display = "block";
-
-    text.style.display="none";
-    var fileName = e.target.files[0].name;
-    let filedata = `<h5><b>${fileName}</b></h5>`;
-    document.getElementById("filename").innerHTML+=filedata;
-  });
-}
-
-// showing table after upload
-function ShowTable() {
-  const table = document.querySelector(".table-responsive"),
+    form = dropArea1.querySelector("#uploadForm"),
     area = document.querySelector(".file_upload_container"),
-    box = document.querySelector(".drop_box2"),
-    btn = box.querySelector(".upload_btn");
+    table = document.querySelector(".table-responsive");
 
-    btn.onclick = () => {
-      area.style.display = "none";
-      table.style.display = "block";
-    };
-}
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    // 폼이 제출될 때의 작업을 수행합니다.
+    table.style.display = "block";
+  });
+};
+// showing table after upload
+// function ShowTable() {
+//   const table = document.querySelector(".table-responsive"),
+//     area = document.querySelector(".file_upload_container"),
+//     box = document.querySelector(".drop_box2"),
+//     btn = box.querySelector(".upload_btn");
+
+//     btn.onclick = () => {
+//       area.style.display = "none";
+//       table.style.display = "block";
+//     };
+// }
 
 // showing file upload ui
 function ShowFileUpload() {
@@ -164,7 +172,7 @@ function ShowFileUpload() {
 
 }
 
-ShowTable();
-DragDrop();
+// ShowTable();
 ShowChart();
 ShowFileUpload();
+DragDrop();

@@ -22,38 +22,36 @@
   <div class="row">
     <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
       <!-- file upload -->
-      <div class="file_upload_container" style="display: none;">
+      <div class="file_upload_container">
         <div class="card">
           
           <div class="drop_box1">
-            <header>
-              <img src="{% static 'img/upload.png' %}" alt="" class="uploaded-image">
-              <br>
-              <h5><b>Choose Your File to Upload</b></h5>
-            </header>
-            <input type="file" hidden accept=".csv" name="file_name" style="display: none;">
-            <button class="choose_btn">Choose File</button>
+            <div class="file-upload">
+              <div class="file-select">
+                <div class="file-select-button" id="fileName">Choose File</div>
+                <div class="file-select-name" id="noFile">No file chosen...</div> 
+                <form method="post" accept=".csv" enctype="multipart/form-data" id="uploadForm">
+                  {% csrf_token %}
+                  <input type="file" name="chooseFile" id="chooseFile">
+                  <input type="submit" class="upload_btn" name="upload_btn">
+                </form>
+              </div>
           </div>
 
-          <div class="drop_box2" style="display:none;">
-            <header id="filename">
-              <img src="{% static 'img/upload.png' %}" alt="" class="uploaded-image">
-              <br>
-              <h5><b>Press to Upload</b></h5>
-            </header>
-            <form action="" method="post">
-              {% csrf_token %}
-              <button type="button" class="upload_btn" id="upload_btn">Upload</button>
-            </form>
+          
           </div>
+
         </div>
       </div>
+
+
+      
 
       <!-- dashboard -->
       <div id="chart" style="width:1220px;height:500px;display:none;"></div>
 
       <!-- csv file table -->
-      <div class="table-responsive small">
+      <div class="table-responsive small" style="display:none;">
         <!-- <div class="bt_wrapper">
           <button class="reupload big-button">Upload</button>
           <button class="pred big-button">Predict</button>
