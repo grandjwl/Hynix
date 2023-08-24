@@ -1,121 +1,117 @@
 // 대시보드 showing 함수
-// function ShowChart() {
-//   const table = document.querySelector(".table-responsive"),
-//     btn2 = table.querySelector(".pred");
-//   var chartDom = document.getElementById('chart');
-//   btn2.onclick = () => {
-//     btn2.style.display = "none";
-//     chartDom.style.display = "block";
-//   };
+function ShowChart() {
+  const table = document.querySelector(".table-responsive"),
+    btn2 = table.querySelector(".pred");
+  var chartDom = document.getElementById('chart');
+  btn2.onclick = () => {
+    btn2.style.display = "none";
+    chartDom.style.display = "block";
+  };
 
-  
-//   var myChart = echarts.init(chartDom);
-//   var option;
+  var myChart = echarts.init(chartDom);
+  var option;
 
-//   var pred_max = [99, 94, 90, 87, 85];
-//   var pred_min = [50, 60, 70, 80, 84];
-//   const diff = pred_max.map((x, y) => x - pred_min[y]);
+  var pred_max = Array(minmax.max);
+  var pred_min = Array(minmax.min);
+  const diff = pred_max.map((x, y) => x - pred_min[y]);
+  console.log(diff);
 
-//   option = {
-//     title: {
-//       text: 'Accumulated Waterfall Chart'
-//     },
-//     tooltip: {
-//       trigger: 'axis',
-//       axisPointer: {
-//         type: 'shadow'
-//       },
-//       formatter: function (params) {
-//         let tar;
-//         if (params[1] && params[1].value !== '-') {
-//           tar = params[1];
-//         } else {
-//           tar = params[2];
-//         }
-//         return tar && tar.name + '<br/>' + tar.seriesName + ' : ' + tar.value;
-//       }
-//     },
-//     legend: {
-//       data: ['Max-Min']
-//     },
-//     grid: {
-//       left: '3%',
-//       right: '4%',
-//       bottom: '3%',
-//       containLabel: true
-//     },
-//     xAxis: {
-//       type: 'category',
-//       data: ["x1","x2","x3","x4","x5"]
-//     },
-//     yAxis: {
-//       type: 'value',
-//       min: 0,
-//       max: 100
-//     },
-//     series: [
-//       {
-//         name: 'Min',
-//         type: 'bar',
-//         stack: 'Total',
-//         label: {
-//           show: true,
-//           position: 'insideTop'
-//         },
-//         silent: true,
-//         itemStyle: {
-//           borderColor: 'transparent',
-//           color: 'transparent'
-//         },
-//         emphasis: {
-//           itemStyle: {
-//             borderColor: 'transparent',
-//             color: 'transparent'
-//           }
-//         },
-//         data: pred_min
-//       },
+  option = {
+    title: {
+      text: 'Accumulated Waterfall Chart'
+    },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      },
+      formatter: function (params) {
+        let tar;
+        if (params[1] && params[1].value !== '-') {
+          tar = params[1];
+        } else {
+          tar = params[2];
+        }
+        return tar && tar.name + '<br/>' + tar.seriesName + ' : ' + tar.value;
+      }
+    },
+    legend: {
+      data: ['Max-Min']
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: ["x1"]
+    },
+    yAxis: {
+      type: 'value',
+      min: 0,
+      max: 100
+    },
+    series: [
+      {
+        name: 'Min',
+        type: 'bar',
+        stack: 'Total',
+        label: {
+          show: true,
+          position: 'insideTop'
+        },
+        silent: true,
+        itemStyle: {
+          borderColor: 'transparent',
+          color: 'transparent'
+        },
+        emphasis: {
+          itemStyle: {
+            borderColor: 'transparent',
+            color: 'transparent'
+          }
+        },
+        data: pred_min
+      },
       
-//       {
-//         name: 'Max-Min',
-//         type: 'bar',
-//         stack: 'Total',
-//         label: {
-//           show: true,
-//           position: 'inside'
-//         },
-//         data: diff
-//       },
-//       {
-//         name: 'Max',
-//         type: 'bar',
-//         stack: 'Total',
-//         label: {
-//           show: true,
-//           position: 'insideBottom',
-//         },
-//         silent: true,
-//         itemStyle: {
-//           borderColor: 'transparent',
-//           color: 'transparent'
-//         },
-//         emphasis: {
-//           itemStyle: {
-//             borderColor: 'transparent',
-//             color: 'transparent'
-//           }
-//         },
-//         data: pred_max
-//       }
-//     ]
-//   };
+      {
+        name: 'Max-Min',
+        type: 'bar',
+        stack: 'Total',
+        label: {
+          show: true,
+          position: 'inside'
+        },
+        data: diff
+      },
+      {
+        name: 'Max',
+        type: 'bar',
+        stack: 'Total',
+        label: {
+          show: true,
+          position: 'insideBottom',
+        },
+        silent: true,
+        itemStyle: {
+          borderColor: 'transparent',
+          color: 'transparent'
+        },
+        emphasis: {
+          itemStyle: {
+            borderColor: 'transparent',
+            color: 'transparent'
+          }
+        },
+        data: pred_max
+      }
+    ]
+  };
 
-//   option && myChart.setOption(option);
-// };
-
-function sleep(ms) {
-  return new Promise((r) => setTimeout(r, ms));
-}
+  option && myChart.setOption(option);
+};
 
 // file upload form
 function UploadFile() {
@@ -182,28 +178,6 @@ function FillTable() {
   area.style.display = "block";
 };
 
-function SendTime(){
-  document.getElementById("timestampForm").addEventListener("submit", function(event) {
-    event.preventDefault(); // 폼 기본 동작 방지
-
-    const currentTimestamp = new Date().toISOString(); // 현재 시각을 ISO 형식으로 변환
-    console.log(currentTimestamp);
-    const hiddenInput = document.createElement("input");
-    hiddenInput.type = "hidden";
-    hiddenInput.name = "timestamp";
-    hiddenInput.value = currentTimestamp;
-
-    // 폼에 숨겨진 필드 추가
-    document.getElementById("timestampForm").appendChild(hiddenInput);
-
-    // 폼 제출
-    document.getElementById("timestampForm").submit();
-  });
-};
-
-
-
 UploadFile();
 FillTable();
-SendTime();
-// ShowChart();
+ShowChart();

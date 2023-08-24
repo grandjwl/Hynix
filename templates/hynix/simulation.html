@@ -57,13 +57,7 @@
         <br>
         <!-- prediction button -->
         <div class="bt_wrapper">
-          <form id="timestampForm" method="post">
-            {% csrf_token %}
-            <label>공정 완료 여부 :
-              <input type="checkbox" name="isFinish" />
-            </label><br>
-            <button type="button">Send Timestamp to Server</button>
-          </form>
+          <button type="button" class="pred">Predict</button>
         </div>
       </div>
 
@@ -81,8 +75,7 @@
 <script src="{% static 'js/echarts.min.js' %}"></script>
 <script type="text/javascript">
   const data = {{ data_json|safe }};
-  // const minmax = {{ confidence_interval|safe }};
-  // console.log(minmax);
+  const minmax = {{ confidence_interval|safe }};
 </script>
 <script src="{% static 'js/simulation.js' %}" type="module"></script>
 {% endblock %}
