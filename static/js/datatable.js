@@ -6,6 +6,7 @@ $(document).ready(function () {
         columnDefs: [
             {
                 targets: 3
+
             }
         ]
     });

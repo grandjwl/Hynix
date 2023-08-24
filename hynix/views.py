@@ -34,7 +34,7 @@ def main(request):
 
 def get_predictions(test_data):
     test = test_data
-    test.drop(columns=['Date'], inplace = True)
+    # test.drop(columns=['Date'], inplace = True)
 
     # 동연
     torch.manual_seed(1234)
@@ -97,7 +97,7 @@ def get_predictions(test_data):
                     diff =  time1 - time2
                     col.append(round(diff.seconds/(60*60),2))
                 df[ts_data.columns[idx]+"-"+ts_data.columns[idx-1]] = col
-            with open('C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/4. web_django/hynix_fab_project/hynix/ensemble/kdy/train_q_train.pkl', 'wb') as f:
+            with open('hynix/ensemble/kdy/train_q_train.pkl', 'wb') as f:
                 pickle.dump(df, f)
             return df
 
@@ -105,7 +105,7 @@ def get_predictions(test_data):
             empty_columns = final.columns[final.isnull().all()]
             final = final.drop(empty_columns, axis=1)
             self.deleted_columns = list(empty_columns)
-            with open('C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/4. web_django/hynix_fab_project/hynix/ensemble/kdy/deleted_columns.pkl', 'wb') as f:
+            with open('hynix/ensemble/kdy/deleted_columns.pkl', 'wb') as f:
                 pickle.dump(self.deleted_columns, f)
             return final, self.deleted_columns
 
@@ -115,7 +115,7 @@ def get_predictions(test_data):
             total_rows = final.shape[0]
             self.null_columns = null_counts[null_counts / total_rows >= null_threshold].index.tolist()
             final = final.drop(self.null_columns, axis=1)
-            with open('C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/4. web_django/hynix_fab_project/hynix/ensemble/kdy/null_columns.pkl', 'wb') as f:
+            with open('hynix/ensemble/kdy/null_columns.pkl', 'wb') as f:
                 pickle.dump(self.null_columns, f)    
             return final, self.null_columns
         
@@ -133,7 +133,7 @@ def get_predictions(test_data):
             to_drop_all = [column for column in upper_all.columns if any(upper_all[column] > 0.8)]
             self.to_drop_all = [column for column in upper_all.columns if any(upper_all[column] > 0.8)]
             final = final.drop(self.to_drop_all, axis=1)
-            with open('C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/4. web_django/hynix_fab_project/hynix/ensemble/kdy/to_drop_all.pkl', 'wb') as f:
+            with open('hynix/ensemble/kdy/to_drop_all.pkl', 'wb') as f:
                 pickle.dump(self.to_drop_all, f) 
             return final, self.to_drop_all
         
@@ -164,11 +164,11 @@ def get_predictions(test_data):
             return final
         
         def load_pickles(self):
-            with open("C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/4. web_django/hynix_fab_project/hynix/ensemble/kdy/deleted_columns.pkl", "rb") as file:
+            with open('hynix/ensemble/kdy/deleted_columns.pkl', "rb") as file:
                 deleted_columns = pickle.load(file)
-            with open("C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/4. web_django/hynix_fab_project/hynix/ensemble/kdy/null_columns.pkl", "rb") as file:
+            with open('hynix/ensemble/kdy/null_columns.pkl', "rb") as file:
                 null_columns = pickle.load(file)
-            with open("C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/4. web_django/hynix_fab_project/hynix/ensemble/kdy/to_drop_all.pkl", "rb") as file:
+            with open('hynix/ensemble/kdy/to_drop_all.pkl', "rb") as file:
                 to_drop_all = pickle.load(file)
             return deleted_columns, null_columns, to_drop_all
         
@@ -222,7 +222,7 @@ def get_predictions(test_data):
             return out
         
     test1 = test
-    with open("C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/4. web_django/hynix_fab_project/hynix/ensemble/kdy/preprocess_funcs.pkl", "rb") as file:
+    with open('hynix/ensemble/kdy/preprocess_funcs.pkl', "rb") as file:
         pf = pickle.load(file)
 
     deleted_columns, null_columns, to_drop_all = pf.load_pickles()
@@ -231,10 +231,10 @@ def get_predictions(test_data):
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    with open("C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/4. web_django/hynix_fab_project/hynix/ensemble/kdy/LSTM.pkl", "rb") as file:
+    with open('hynix/ensemble/kdy/LSTM.pkl', "rb") as file:
         LSTM = pickle.load(file)
 
-    model = torch.load('C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/4. web_django/hynix_fab_project/hynix/ensemble/kdy/3. final_best_model.pt')
+    model = torch.load('hynix/ensemble/kdy/3. final_best_model.pt')
     model.eval()
 
     test_tensor = torch.tensor(scaled_final_test.values).float().to(device)
@@ -406,7 +406,7 @@ def get_predictions(test_data):
             train_sc = std.transform(train)
             train = pd.DataFrame(data=train_sc, index=train.index, columns=train.columns)
 
-            pickle.dump(std, open('C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/4. web_django/hynix_fab_project/hynix/ensemble/cgw/std_scaler.pkl', 'wb'))
+            pickle.dump(std, open('hynix/ensemble/cgw/std_scaler.pkl', 'wb'))
             
             corr_df = train.apply(lambda x: x.corr(y_train))
             corr_df = corr_df.apply(lambda x: round(x ,2))
@@ -417,7 +417,7 @@ def get_predictions(test_data):
             train_options["column_names"] = train.columns.to_list()
             train_options["column_means"] = list(train.mean().values)
 
-            pickle.dump(train_options, open('C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/4. web_django/hynix_fab_project/hynix/ensemble/cgw/train_options.pkl', 'wb'))
+            pickle.dump(train_options, open('hynix/ensemble/cgw/train_options.pkl', 'wb'))
             
             y_train /= 100
             train = pd.merge(train, y_train,how="left",on="ID") 
@@ -434,8 +434,8 @@ def get_predictions(test_data):
             test_q = self.Qtime(test, ts_test)
             test = self.insert_Qtime(test, test_q)
             
-            train_options = pickle.load(open('C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/4. web_django/hynix_fab_project/hynix/ensemble/cgw/train_options.pkl', 'rb'))
-            scaler = pickle.load(open('C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/4. web_django/hynix_fab_project/hynix/ensemble/cgw/std_scaler.pkl', 'rb'))
+            train_options = pickle.load(open('hynix/ensemble/cgw/train_options.pkl', 'rb'))
+            scaler = pickle.load(open('hynix/ensemble/cgw/std_scaler.pkl', 'rb'))
             
             test = test[train_options["before_scale_columns"]]
             
@@ -458,7 +458,7 @@ def get_predictions(test_data):
             test = self.RealTestDataset(test)
             test_loader = DataLoader(test, batch_size=833, shuffle=False, drop_last=False)
             device = "cuda" if torch.cuda.is_available() else "cpu"
-            model = torch.load('C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/4. web_django/hynix_fab_project/hynix/ensemble/cgw/lstm_best_model_sgd_cosine.pt')
+            model = torch.load('hynix/ensemble/cgw/lstm_best_model_sgd_cosine.pt')
             
             outputs = []
             real = []
@@ -482,7 +482,7 @@ def get_predictions(test_data):
     # 정우
 
     class Preprocessor :
-        default_path = 'C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/4. web_django/hynix_fab_project/hynix/ensemble/ljw'
+        default_path = 'hynix/ensemble/ljw'
 
         def __init__(self):
             pass
@@ -671,14 +671,14 @@ def get_predictions(test_data):
             Rtest = self.scale_preprocessing_Rtest(Rtest)
             return Rtest
         
-    default_path = 'C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/4. web_django/hynix_fab_project/hynix/ensemble/ljw/'
+    default_path = 'hynix/ensemble/ljw/'
     with open(default_path + "Preprocessor", "rb") as f:
         preprocess = pickle.load(f)
             
     test3 = test.iloc[:, 1:]
     Rtest = preprocess.preprocessing_Rtest(test3)
 
-    best_model = load_model('C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/4. web_django/hynix_fab_project/hynix/ensemble/ljw/ML_best_model')
+    best_model = load_model('hynix/ensemble/ljw/ML_best_model')
     ljw_pred = predict_model(best_model, data=Rtest)['prediction_label']*100
     ljw_pred = pd.DataFrame(ljw_pred)
         
@@ -695,7 +695,8 @@ def get_predictions(test_data):
 
     ensemble_module = kdy_pred.iloc[:, 0]*normalized_weights[0] + cgw_pred.iloc[:, 0]*normalized_weights[1] + ljw_pred.iloc[:, 0]*normalized_weights[2]
     predictions = ensemble_module
-    prediction = pd.concat([test_data, prediction], axis=1)
+    predictions.columns = ['prediction']
+    prediction = pd.concat([test_data, predictions], axis=1)
     return prediction
 
 def process_file(test_data_file):
@@ -703,53 +704,133 @@ def process_file(test_data_file):
     predictions = get_predictions(test_data)
     return predictions
 
+from sklearn.utils import resample
+
+def calculate_confidence_interval(predictions, alpha=0.9):
+    # Bootstrap re-sampling을 사용하여 신뢰구간 계산
+    bootstrapped_samples = [resample(predictions) for _ in range(1000)]
+    min = np.percentile(bootstrapped_samples, (1-alpha)/2*100)
+    max = np.percentile(bootstrapped_samples, alpha+((1-alpha)/2)*100)
+    return min, max
+
 def simulation(request):
     test_data_html = "<h1>simulator page</h1>"
     prediction = None
-    test_data_json = '{}'  # 함수 시작 부분에서 초기화
+    confidence_interval = {"min": None, "max": None}
+    test_data_json = '{}'  
 
     if request.method == "POST":
         if 'test_data' in request.FILES:
             test_data_file = request.FILES['test_data']
             
-            # 파일 내용을 보여주기 위해 데이터 읽기
             test_data = pd.read_csv(test_data_file)
             test_data_html = test_data.head(10).to_html()
             
             try:
+                # 'unnamed 0' 컬럼 제거
+                test_data = test_data.drop(columns=['Unnamed: 0'], errors='ignore')
+                test_data.to_csv('hynix/read_csv/test_data.csv')
+                
                 # ID 컬럼을 key로 하는 json 생성
                 test_data_json = test_data.head(10).set_index('ID').to_json(orient='index')
-            except Exception as e: # JSON 변환 과정에서 오류가 발생하더라도 코드는 계속 실행
+            except Exception as e:
                 test_data_json = '{}'
-                # 로깅을 사용해 오류 기록
                 print(f"Error converting data to JSON: {e}")
             
-            if 'run' in request.POST:
-                # 'Run' 버튼이 클릭 시, 예측 실행
-                prediction = process_file(test_data_file)
-                response = HttpResponse(content_type='text/csv')
-                response['Content-Disposition'] = 'attachment; filename="predictions.csv"'
-                
-                # 예측 결과를 DB에 저장
+        if 'run' in request.POST:
+            run_timestamp = request.POST['run_timestamp']  # Run 버튼 누른 시점의 시간 값을 받아옴
+            test_data_file = pd.read_csv('hynix/read_csv/test_data.csv')
+            prediction = process_file(test_data_file)
+            
+            # 신뢰구간 계산
+            min, max = calculate_confidence_interval(prediction["prediction"])
+            confidence_interval = {"min": min, "max": max}
+            
+            # 'Date' 컬럼 추가하고 Run 버튼 누른 시점의 시간 값으로 채움
+            prediction['Date'] = run_timestamp
+            
+            if 'yes' in request.POST:
                 prediction_csv = StringIO()
                 prediction.to_csv(prediction_csv, index=False)
                 prediction_model = Prediction(csv_file=ContentFile(prediction_csv.getvalue().encode('utf-8'), name="predictions.csv"))
                 prediction_model.save()
+            
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="predictions.csv"'
+            return response
 
-                return response
-
-    return render(request, "hynix/simulation.html", {"contents": test_data_html, "prediction": prediction, "data_json": test_data_json})
+    return render(request, "hynix/simulation.html", {"contents": test_data_html, "prediction": prediction, "data_json": test_data_json, "confidence_interval": confidence_interval})
 
 
 
-#정우
+
+
+from django.http import JsonResponse
+import json
+from django.views.decorators.csrf import csrf_protect
+@csrf_protect
+
 def lifecycle(request):
-    data = []
-    for i in range(1, 101):
-        datetime_value = f"2023-08-{i:02d} {i:02d}:00:00"
-        lot_id = 1000 + i
-        pred = 70 + i
-        real = None  # 빈 값으로 설정
-        data.append({"datetime": datetime_value, "lot_id": lot_id, "pred": pred, "real": real})
-    
+    # prediction 가져오기
+    try:
+        latest_prediction = Prediction.objects.latest('date_created')
+        prediction_file = latest_prediction.csv_file.path
+        
+        # prediction CSV 파일을 df로 읽기
+        prediction_data = pd.read_csv(prediction_file)
+        
+        # 필요한 컬럼을 추출하고 딕셔너리 리스트로 변환
+        data = prediction_data[["Date", "ID", "prediction"]].to_dict(orient='records')
+        
+    except (Prediction.DoesNotExist, FileNotFoundError, pd.errors.EmptyDataError, pd.errors.ParserError):
+        # 오류 발생 시, 기본 데이터를 생성해 data 리스트에 저장
+        data = []
+        for i in range(1, 101):
+            datetime_value = "2023-08-23 00:00:00"
+            lot_id = 1000 + i
+            pred = 70 + i
+            real = None 
+            data.append({"Date": datetime_value, "ID": lot_id, "prediction": pred, "real": real})
+
+
+
+    if request.method == "POST":
+
+        # 사용자가 입력한 'IDReal' 데이터를 JSON 형태로 받아오기
+        updated_data_json = request.POST['IDreal'] 
+        # JSON 데이터를 딕셔너리로 변환
+        updated_data_dict = json.loads(updated_data_json)
+        print(updated_data_dict)
+        # POST 요청이 오는 경우에만 prediction_data를 다시 가져와야 함
+        # prediction_data 초기화
+        try:
+            latest_prediction = Prediction.objects.latest('date_created')
+            prediction_file = latest_prediction.csv_file.path
+            prediction_data = pd.read_csv(prediction_file)
+        except (Prediction.DoesNotExist, FileNotFoundError, pd.errors.EmptyDataError, pd.errors.ParserError):
+            # 오류 발생 시, 기본 데이터를 생성해 prediction_data를 초기화
+            prediction_data = pd.DataFrame()
+            prediction_data = prediction_data.append(data, ignore_index=True)
+        
+        for item in updated_data_dict:
+            id_value = item["ID"]
+            real_value = item['real']   
+            # prediction_data에서 'ID' 값이 일치하는 행을 찾아서 'real' 값을 대체
+            prediction_data.loc[prediction_data['ID'] == id_value, 'real'] = real_value
+        
+        # 델타 값 계산
+        prediction_data['delta'] = (prediction_data['prediction'] - prediction_data['real']).abs()
+        
+        # 델타 값의 평균 계산
+        avg_delta = prediction_data['delta'].mean()
+        prediction_data['avg_del'] = avg_delta
+        Date = prediction_data['Date'] 
+        
+        # 데이터를 DB에 다시 저장
+        
+        # 데이터와 함께 lifecycle.html 페이지를 렌더링해 화면에 보여줌
+        return render(request, "hynix/lifecycle.html", {"avg_delta": avg_delta, "Date": Date.to_string() })
+
+
+        # 데이터와 함께 lifecycle.html 페이지를 렌더링해 화면에 보여줌
     return render(request, "hynix/lifecycle.html", {"data": data})
