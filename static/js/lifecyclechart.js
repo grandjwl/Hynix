@@ -2,12 +2,18 @@ var chartDom = document.getElementById('Chart');
 var myChart = echarts.init(chartDom);
 
 
+// var datesDataAttr = chartDom.getAttribute('data-dates');
+// // 'data-dates' 속성 값이 있는 경우에만 JSON 파싱하여 사용
+// var dates_data;
+// var avg_deltaDataAttr = chartDom.getAttribute('avg-delta-data');
+// // 'data-dates' 속성 값이 있는 경우에만 JSON 파싱하여 사용
+// var avg_delta_data;
 var datesDataAttr = chartDom.getAttribute('data-dates');
-// 'data-dates' 속성 값이 있는 경우에만 JSON 파싱하여 사용
-var dates_data;
 var avg_deltaDataAttr = chartDom.getAttribute('avg-delta-data');
-// 'data-dates' 속성 값이 있는 경우에만 JSON 파싱하여 사용
-var avg_delta_data;
+var dates_data = datesDataAttr;  // JSON.parse를 사용하지 않음
+var avg_delta_data = avg_deltaDataAttr;  // JSON.parse를 사용하지 않음
+console.log("dates_data:", dates_data);
+console.log("avg_delta_data:", avg_delta_data);
 
 
 var option;

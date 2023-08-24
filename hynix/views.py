@@ -771,7 +771,7 @@ from django.views.decorators.csrf import csrf_protect
 @csrf_protect
 
 def lifecycle(request):
-    # prediction 가져오기
+    # prediction 가져오기 실제 prediction 이라는 옆에 폴더에 쫙 저장됬어가지고 값을 가져왔었음?!! 
     try:
         latest_prediction = Prediction.objects.latest('date_created')
         prediction_file = latest_prediction.csv_file.path
@@ -786,10 +786,10 @@ def lifecycle(request):
         # 오류 발생 시, 기본 데이터를 생성해 data 리스트에 저장
         data = []
         for i in range(1, 101):
-            datetime_value = "2023-08-23 00:00:00"
+            datetime_value = "2023-08-24 00:00:00"
             lot_id = 1000 + i
             pred = 70 + i
-            real = None 
+            real = 70 
             data.append({"Date": datetime_value, "ID": lot_id, "prediction": pred, "real": real})
 
 
@@ -798,9 +798,21 @@ def lifecycle(request):
 
         # 사용자가 입력한 'IDReal' 데이터를 JSON 형태로 받아오기
         updated_data_json = request.POST['IDreal'] 
-        # JSON 데이터를 딕셔너리로 변환
-        updated_data_dict = json.loads(updated_data_json)
-        print(updated_data_dict)
+
+        # JSON 데이터를 파싱하여 리스트로 변환
+        updated_data_list = json.loads(updated_data_json)
+
+        # 딕셔너리로 저장
+        updated_data_dict = {}  # 빈 딕셔너리 생성
+        for item in updated_data_list:
+            ID = item["ID"]
+            real = item["real"]
+            updated_data_dict[ID] = real
+
+        print(updated_data_dict)  # 딕셔너리 출력
+
+
+
         # POST 요청이 오는 경우에만 prediction_data를 다시 가져와야 함
         # prediction_data 초기화
         try:
@@ -812,24 +824,24 @@ def lifecycle(request):
             prediction_data = pd.DataFrame()
             prediction_data = prediction_data.append(data, ignore_index=True)
         
-        for item in updated_data_dict:
-            id_value = item["ID"]
-            real_value = item['real']   
+        for id_value, real_value in updated_data_dict.items():
             # prediction_data에서 'ID' 값이 일치하는 행을 찾아서 'real' 값을 대체
             prediction_data.loc[prediction_data['ID'] == id_value, 'real'] = real_value
         
+
         # 델타 값 계산
         prediction_data['delta'] = (prediction_data['prediction'] - prediction_data['real']).abs()
         
         # 델타 값의 평균 계산
         avg_delta = prediction_data['delta'].mean()
         prediction_data['avg_del'] = avg_delta
-        Date = prediction_data['Date'] 
-        
+        Date = prediction_data['Date'][0] 
+        print(avg_delta)
+        print(Date)
         # 데이터를 DB에 다시 저장
         
         # 데이터와 함께 lifecycle.html 페이지를 렌더링해 화면에 보여줌
-        return render(request, "hynix/lifecycle.html", {"avg_delta": avg_delta, "Date": Date.to_string() })
+        return render(request, "hynix/lifecycle.html", {"avg_delta": avg_delta, "Date": Date, "data": data})
 
 
         # 데이터와 함께 lifecycle.html 페이지를 렌더링해 화면에 보여줌
