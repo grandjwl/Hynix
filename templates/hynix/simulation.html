@@ -74,8 +74,9 @@
 <script src="{% static 'js/echarts.js' %}"></script>
 <script src="{% static 'js/echarts.min.js' %}"></script>
 <script type="text/javascript">
-  const data = {{ data_json|safe }};
-  const minmax = {{ confidence_interval|safe }};
+  var data = {{ data_json|safe }};
+  var minmax = {{ confidence_interval|safe }};
+  console.log(minmax);
 </script>
 <script src="{% static 'js/simulation.js' %}" type="module"></script>
 {% endblock %}

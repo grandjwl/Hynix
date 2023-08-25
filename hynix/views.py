@@ -23,6 +23,7 @@ from django.http import JsonResponse
 import torch.nn as nn
 from hynix.ensemble import DataPreprocessor, PreprocessAndPredict, Preprocessor, LSTM
 import random
+from hynix.ensemble import LSTM_model
 
 # 50번의 시뮬레이션 데이터 생성
 def MakeSimulationData(test, filename):
@@ -51,7 +52,7 @@ def MakeSimulationData(test, filename):
 
 # 동연
 def model1_prediction(test_data):
-    test_data = MakeSimulationData(test_data, 'prepro_kdy.csv')
+    # test_data = MakeSimulationData(test_data, 'prepro_kdy.csv')
     dp = DataPreprocessor()
     deleted_columns, null_columns, to_drop_all = dp.load_pickles()
     final_test = dp.preprocessing_realtest(test_data)
@@ -75,15 +76,16 @@ def model1_prediction(test_data):
 
 # 고운
 def model2_prediction(test_data):
-    test_data = MakeSimulationData(test_data, 'prepro_cgw.csv')
+    # test_data = MakeSimulationData(test_data, 'prepro_cgw.csv')
     pp = PreprocessAndPredict()
     pred = pp.run(test_data)
+    # 100 곱하기
     pred = pd.DataFrame(pred.detach().numpy())
     return pred
 
 # 정우
 def model3_prediction(test_data):
-    test_data = MakeSimulationData(test_data, 'prepro_ljw.csv')
+    # test_data = MakeSimulationData(test_data, 'prepro_ljw.csv')
     # default_path = 'hynix/ensemble/ljw/'
     # with open(default_path + "Preprocessor", "rb") as f:
     #     preprocess = pickle.load(f)
@@ -116,7 +118,8 @@ def ensemble_models(test_data):
     return prediction
 
 def calculate_confidence_interval(predictions_df, alpha=0.9):
-    predictions = predictions_df['prediction']
+    # predictions = predictions_df['prediction']
+    predictions = predictions_df
 
     # Bootstrap re-sampling을 사용하여 신뢰구간 계산
     bootstrapped_samples = [resample(predictions) for _ in range(1000)]
@@ -153,12 +156,14 @@ def simulation(request):
         
             # prediction = ensemble_models(test_data_file)
             prediction = np.random.randint(10,100,833)
+            min_val = [min(prediction) for i in range(10)]
+            max_val = [max(prediction) for i in range(10)]
+            mean_val = [sum(prediction)//len(prediction) for i in range(10)]
             
             # 신뢰구간 계산
             # min, max = calculate_confidence_interval(prediction["prediction"])
-            min_val, max_val, mean_val = calculate_confidence_interval(prediction)
+            # min_val, max_val, mean_val = calculate_confidence_interval(prediction)
             confidence_interval = {"min": min_val, "max": max_val, "mean": mean_val}
-            confidence_interval = json.dumps(confidence_interval)
 
     return render(request, "hynix/simulation.html", {"prediction": prediction, "data_json": test_data_json, "confidence_interval": confidence_interval})
 
