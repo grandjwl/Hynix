@@ -3,13 +3,15 @@ var myChart = echarts.init(chartDom);
 console.log(chartDom)
 
 
-var avg_delta_data = chartDom.getAttribute('avg-delta-data');
-var dates_data = chartDom.getAttribute('data-dates');
-// var avg_delta_data = JSON.parse(chartDom.getAttribute('avg-delta-data'));
-// var dates_data = JSON.parse(chartDom.getAttribute('data-dates'));
-console.log("avg_delta_data:", avg_delta_data);
-console.log("dates_data:", dates_data);
-
+// 속성 값 가져오기
+var avgDeltaData = chartDom.getAttribute('avg_delta');
+var datesData = chartDom.getAttribute('Date');
+var dates_data = avgDeltaData.split(','); // 쉼표로 구분된 값들을 리스트로 변환
+var avg_delta_data = datesData.split(','); // 쉼표로 구분된 값들을 리스트로 변환
+console.log(dates_data);
+console.log(avg_delta_data);
+// var dates_data = ['2023-08-01', '2023-08-02', '2023-08-03', '2023-08-04', '2023-08-05'];
+// var avg_delta_data = [10, 15, 8, 12, 18];
 
 
 

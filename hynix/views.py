@@ -3,7 +3,7 @@ from io import StringIO
 from django.core.files.base import ContentFile
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import Prediction
+from .models import PreprocessedCSV, Prediction_complete, InputCSV, WLifecycle
 import pandas as pd
 import numpy as np
 import shutil
@@ -26,11 +26,13 @@ import torch.nn as nn
 import random
 import torch.backends.cudnn as cudnn
 from torch.utils.data import Dataset, DataLoader, TensorDataset
+from sklearn.utils import resample
+from pycaret.regression import *
+
+
 
 def main(request):
     return render(request, 'hynix/main.html',{"contents":"<h1>main page</h1>"})
-
-# test = pd.read_csv('C:/Users/dykim/OneDrive/바탕 화면/공부자료/22, 23 AI 공부/2023 T아카데미 ASAC/기업 프로젝트/4. web_django/hynix_fab_project/hynix/ensemble/dataset')
 
 def get_predictions(test_data):
     test = test_data
@@ -224,7 +226,30 @@ def get_predictions(test_data):
     test1 = test
     with open('hynix/ensemble/kdy/preprocess_funcs.pkl', "rb") as file:
         pf = pickle.load(file)
+    # ---------------------------------------------------------------------------------------------
+    # 데이터베이스에서 prepro_kdy.csv 파일 가져오기
+    csv_obj = PreprocessedCSV.objects.filter(data__contains='prepro_kdy.csv').first()
 
+    if csv_obj:
+        file_path = csv_obj.data.path
+        
+        # 파일을 직접 Pandas 데이터프레임으로 읽기
+        train_kdy_df = pd.read_csv(file_path)
+
+    # test1의 행을 50번 복제
+    test1 = pd.concat([test1]*50).reset_index(drop=True)
+
+    # 각 행에 대해 처리
+    for i in range(len(test1)):
+        # 해당 행에서 마지막으로 값이 있는 컬럼 찾기
+        last_valid_col = test1.iloc[i].last_valid_index()
+
+        # last_valid_col 다음 컬럼부터 값을 채우기
+        for col in test1.columns[test1.columns.get_loc(last_valid_col)+1:]:
+            # 해당 컬럼에서 랜덤한 값을 선택
+            random_value = random.choice(train_kdy_df[col].tolist())
+            test1[col].iloc[i] = random_value
+    # ---------------------------------------------------------------------------------------------
     deleted_columns, null_columns, to_drop_all = pf.load_pickles()
     final_test = pf.preprocessing_realtest(test1)
     scaled_final_test = pf.scale_data_without_target(final_test)
@@ -475,6 +500,30 @@ def get_predictions(test_data):
             return outputs
         
     test2 = test.iloc[:, 1:]
+    # ---------------------------------------------------------------------------------------------
+    # 데이터베이스에서 prepro_cgw.csv 파일 가져오기
+    csv_obj = PreprocessedCSV.objects.filter(data__contains='prepro_cgw.csv').first()
+
+    if csv_obj:
+        file_path = csv_obj.data.path
+        
+        # 파일을 직접 Pandas 데이터프레임으로 읽기
+        train_cgw_df = pd.read_csv(file_path)
+
+    # test2의 행을 50번 복제
+    test2 = pd.concat([test2]*50).reset_index(drop=True)
+
+    # 각 행에 대해 처리
+    for i in range(len(test2)):
+        # 해당 행에서 마지막으로 값이 있는 컬럼 찾기
+        last_valid_col = test2.iloc[i].last_valid_index()
+
+        # last_valid_col 다음 컬럼부터 값을 채우기
+        for col in test2.columns[test2.columns.get_loc(last_valid_col)+1:]:
+            # 해당 컬럼에서 랜덤한 값을 선택
+            random_value = random.choice(train_cgw_df[col].tolist())
+            test2[col].iloc[i] = random_value
+    # ---------------------------------------------------------------------------------------------
     ppp = PreprocessAndPredict()
     cgw_pred = ppp.run(test2)
     cgw_pred = pd.DataFrame(cgw_pred.detach().numpy())
@@ -676,6 +725,30 @@ def get_predictions(test_data):
         preprocess = pickle.load(f)
             
     test3 = test.iloc[:, 1:]
+    # ---------------------------------------------------------------------------------------------
+    # 데이터베이스에서 prepro_ljw.csv 파일 가져오기
+    csv_obj = PreprocessedCSV.objects.filter(data__contains='prepro_ljw.csv').first()
+
+    if csv_obj:
+        file_path = csv_obj.data.path
+        
+        # 파일을 직접 Pandas 데이터프레임으로 읽기
+        train_ljw_df = pd.read_csv(file_path)
+
+    # test3의 행을 50번 복제
+    test3 = pd.concat([test3]*50).reset_index(drop=True)
+
+    # 각 행에 대해 처리
+    for i in range(len(test3)):
+        # 해당 행에서 마지막으로 값이 있는 컬럼 찾기
+        last_valid_col = test3.iloc[i].last_valid_index()
+
+        # last_valid_col 다음 컬럼부터 값을 채우기
+        for col in test3.columns[test3.columns.get_loc(last_valid_col)+1:]:
+            # 해당 컬럼에서 랜덤한 값을 선택
+            random_value = random.choice(train_ljw_df[col].tolist())
+            test3[col].iloc[i] = random_value
+    # ---------------------------------------------------------------------------------------------
     Rtest = preprocess.preprocessing_Rtest(test3)
 
     best_model = load_model('hynix/ensemble/ljw/ML_best_model')
@@ -685,11 +758,11 @@ def get_predictions(test_data):
     # ----------------------------------------------------------------------------
     # ensemble
     
-    mse_values = [10.74511, 11.8428, 1.9966]
+    mse_values = [10.73052, 11.8428, 1.9966]
     weights = [1/mse for mse in mse_values]
     normalized_weights = [weight/sum(weights) for weight in weights]
     
-    kdy_pred = kdy_pred.reset_index(drop=True)
+    cgw_pred = kdy_pred.reset_index(drop=True)
     cgw_pred = cgw_pred.reset_index(drop=True)
     ljw_pred = ljw_pred.reset_index(drop=True)
 
@@ -704,62 +777,64 @@ def process_file(test_data_file):
     predictions = get_predictions(test_data)
     return predictions
 
-from sklearn.utils import resample
+def calculate_confidence_interval(predictions_df, alpha=0.9):
+    predictions = predictions_df['prediction']
 
-def calculate_confidence_interval(predictions, alpha=0.9):
     # Bootstrap re-sampling을 사용하여 신뢰구간 계산
     bootstrapped_samples = [resample(predictions) for _ in range(1000)]
-    min = np.percentile(bootstrapped_samples, (1-alpha)/2*100)
-    max = np.percentile(bootstrapped_samples, alpha+((1-alpha)/2)*100)
-    return min, max
+    min_val = np.percentile(bootstrapped_samples, (1-alpha)/2*100)
+    max_val = np.percentile(bootstrapped_samples, alpha+((1-alpha)/2)*100)
+    mean_val = predictions.mean()
+
+    return min_val, max_val, mean_val
 
 def simulation(request):
     test_data_html = "<h1>simulator page</h1>"
     prediction = None
     confidence_interval = {"min": None, "max": None}
-    test_data_json = '{}'  
+    test_data = None
+    last_filled_column_name = None  # 마지막으로 값이 있는 컬럼의 이름
 
     if request.method == "POST":
         if 'test_data' in request.FILES:
             test_data_file = request.FILES['test_data']
-            
-            test_data = pd.read_csv(test_data_file)
+            input_csv_instance = InputCSV(name=test_data_file.name, data=test_data_file)
+            input_csv_instance.save()
+            test_data = pd.read_csv(test_data_file.temporary_file_path())
             test_data_html = test_data.head(10).to_html()
+
+            # 첫 번째 행에서 마지막으로 값이 있는 컬럼의 이름을 찾기
+            first_row = test_data.iloc[0].dropna()
+            if not first_row.empty:
+                last_filled_column_name = first_row.index[-1]
             
-            try:
-                # 'unnamed 0' 컬럼 제거
-                test_data = test_data.drop(columns=['Unnamed: 0'], errors='ignore')
-                test_data.to_csv('hynix/read_csv/test_data.csv')
-                
-                # ID 컬럼을 key로 하는 json 생성
-                test_data_json = test_data.head(10).set_index('ID').to_json(orient='index')
-            except Exception as e:
-                test_data_json = '{}'
-                print(f"Error converting data to JSON: {e}")
+            # test_data를 JSON 형태로 변환
+            test_data_temp = test_data
+            test_data_temp = test_data_temp.drop(columns=['Unnamed: 0'], errors='ignore')
+            test_data_json = test_data_temp.to_json(orient='records')
             
-        if 'run' in request.POST:
-            run_timestamp = request.POST['run_timestamp']  # Run 버튼 누른 시점의 시간 값을 받아옴
-            test_data_file = pd.read_csv('hynix/read_csv/test_data.csv')
-            prediction = process_file(test_data_file)
-            
-            # 신뢰구간 계산
-            min, max = calculate_confidence_interval(prediction["prediction"])
-            confidence_interval = {"min": min, "max": max}
-            
-            # 'Date' 컬럼 추가하고 Run 버튼 누른 시점의 시간 값으로 채움
-            prediction['Date'] = run_timestamp
-            
-            if 'yes' in request.POST:
-                prediction_csv = StringIO()
-                prediction.to_csv(prediction_csv, index=False)
-                prediction_model = Prediction(csv_file=ContentFile(prediction_csv.getvalue().encode('utf-8'), name="predictions.csv"))
-                prediction_model.save()
-            
+            prediction = process_file(test_data)
+
+            min_val, max_val, mean_val = calculate_confidence_interval(prediction)
+            confidence_interval = {"min": min_val, "max": max_val, "mean": mean_val}
+
+            lifecycle_instance = WLifecycle(min_value=min_val, max_value=max_val)
+            lifecycle_instance.save()
+
+            prediction_csv = StringIO()
+            prediction.to_csv(prediction_csv, index=False)
+
+            # 예측 결과를 Prediction_complete 모델에만 저장
+            prediction_complete_model = Prediction_complete(name="Prediction Result", csv_file=ContentFile(prediction_csv.getvalue().encode('utf-8'), name="complete_predictions.csv"))
+            prediction_complete_model.save()
+
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="predictions.csv"'
             return response
 
-    return render(request, "hynix/simulation.html", {"contents": test_data_html, "prediction": prediction, "data_json": test_data_json, "confidence_interval": confidence_interval})
+    return render(request, "hynix/simulation.html", {"contents": test_data_html, "prediction": prediction, "data_json": test_data_json, "confidence_interval": confidence_interval, "last_column": last_filled_column_name})
+
+
 
 
 
@@ -771,7 +846,7 @@ import json
 def lifecycle(request):
     # prediction 가져오기
     try:
-        latest_prediction = Prediction.objects.latest('date_created')
+        latest_prediction = Prediction_complete.objects.latest('id')  # 'id'는 Django의 기본 제공 필드로, 최신 데이터를 가져오는 데 사용됩니다.
         prediction_file = latest_prediction.csv_file.path
         
         # prediction CSV 파일을 df로 읽기
@@ -780,7 +855,7 @@ def lifecycle(request):
         # 필요한 컬럼을 추출하고 딕셔너리 리스트로 변환
         data = prediction_data[["Date", "ID", "prediction"]].to_dict(orient='records')
         
-    except (Prediction.DoesNotExist, FileNotFoundError, pd.errors.EmptyDataError, pd.errors.ParserError):
+    except (Prediction_complete.DoesNotExist, FileNotFoundError, pd.errors.EmptyDataError, pd.errors.ParserError):
         # 오류 발생 시, 기본 데이터를 생성해 data 리스트에 저장
         data = []
         for i in range(1, 101):
@@ -802,10 +877,10 @@ def lifecycle(request):
         # POST 요청이 오는 경우에만 prediction_data를 다시 가져와야 함
         # prediction_data 초기화
         try:
-            latest_prediction = Prediction.objects.latest('date_created')
+            latest_prediction = Prediction_complete.objects.latest('id')
             prediction_file = latest_prediction.csv_file.path
             prediction_data = pd.read_csv(prediction_file)
-        except (Prediction.DoesNotExist, FileNotFoundError, pd.errors.EmptyDataError, pd.errors.ParserError):
+        except (Prediction_complete.DoesNotExist, FileNotFoundError, pd.errors.EmptyDataError, pd.errors.ParserError):
             # 오류 발생 시, 기본 데이터를 생성해 prediction_data를 초기화
             prediction_data = pd.DataFrame()
             prediction_data = prediction_data.append(data, ignore_index=True)
@@ -827,10 +902,11 @@ def lifecycle(request):
         print(Date)
         
         # 데이터를 DB에 다시 저장
-        
-        # 데이터와 함께 lifecycle.html 페이지를 렌더링해 화면에 보여줌
-        return render(request, "hynix/lifecycle.html", {"avg_delta": avg_delta, "Date": Date })
+        context = {"avg_delta": avg_delta, "Date": Date}
+        return render(request, "hynix/lifecycle.html", context)
 
+    # POST 요청이 아닌 경우에도 데이터를 전달할 context 생성
+    context = {"data": data}
 
-        # 데이터와 함께 lifecycle.html 페이지를 렌더링해 화면에 보여줌
-    return render(request, "hynix/lifecycle.html", {"data": data})
+    # 데이터와 함께 lifecycle.html 페이지를 렌더링해 화면에 보여줌
+    return render(request, "hynix/lifecycle.html", context)
