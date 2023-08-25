@@ -1,19 +1,16 @@
 var chartDom = document.getElementById('Chart');
 var myChart = echarts.init(chartDom);
+console.log(chartDom)
 
 
-// var datesDataAttr = chartDom.getAttribute('data-dates');
-// // 'data-dates' 속성 값이 있는 경우에만 JSON 파싱하여 사용
-// var dates_data;
-// var avg_deltaDataAttr = chartDom.getAttribute('avg-delta-data');
-// // 'data-dates' 속성 값이 있는 경우에만 JSON 파싱하여 사용
-// var avg_delta_data;
-var datesDataAttr = chartDom.getAttribute('data-dates');
-var avg_deltaDataAttr = chartDom.getAttribute('avg-delta-data');
-var dates_data = datesDataAttr;  // JSON.parse를 사용하지 않음
-var avg_delta_data = avg_deltaDataAttr;  // JSON.parse를 사용하지 않음
-console.log("dates_data:", dates_data);
+var avg_delta_data = chartDom.getAttribute('avg-delta-data');
+var dates_data = chartDom.getAttribute('data-dates');
+// var avg_delta_data = JSON.parse(chartDom.getAttribute('avg-delta-data'));
+// var dates_data = JSON.parse(chartDom.getAttribute('data-dates'));
 console.log("avg_delta_data:", avg_delta_data);
+console.log("dates_data:", dates_data);
+
+
 
 
 var option;
