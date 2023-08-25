@@ -132,6 +132,15 @@ def calculate_confidence_interval(predictions_df, alpha=0.9):
 def main(request):
     return render(request, 'hynix/main.html',{"contents":""})
 
+from sklearn.utils import resample
+
+def calculate_confidence_interval(predictions, alpha=0.9):
+    # Bootstrap re-sampling을 사용하여 신뢰구간 계산
+    bootstrapped_samples = [resample(predictions) for _ in range(1000)]
+    min = np.percentile(bootstrapped_samples, (1-alpha)/2*100)
+    max = np.percentile(bootstrapped_samples, alpha+((1-alpha)/2)*100)
+    return min, max
+
 def simulation(request):
     prediction = None
     confidence_interval = {"min": None, "max": None, "mean": None}
