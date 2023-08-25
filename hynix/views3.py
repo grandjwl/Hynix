@@ -27,6 +27,8 @@ import random
 import torch.backends.cudnn as cudnn
 from torch.utils.data import Dataset, DataLoader, TensorDataset
 from sklearn.utils import resample
+from pycaret.regression import *
+
 
 
 def main(request):
@@ -819,8 +821,6 @@ def simulation(request):
             lifecycle_instance = WLifecycle(min_value=min_val, max_value=max_val)
             lifecycle_instance.save()
 
-            prediction['Date'] = run_timestamp
-
             prediction_csv = StringIO()
             prediction.to_csv(prediction_csv, index=False)
 
@@ -834,12 +834,18 @@ def simulation(request):
 
     return render(request, "hynix/simulation.html", {"contents": test_data_html, "prediction": prediction, "data_json": test_data_json, "confidence_interval": confidence_interval, "last_column": last_filled_column_name})
 
+
+
+
+
+
+
 from django.http import JsonResponse
+import json
 
 def lifecycle(request):
     # prediction 가져오기
     try:
-        # 가장 최근에 생성된 Prediction_complete 데이터를 가져옴
         latest_prediction = Prediction_complete.objects.latest('id')  # 'id'는 Django의 기본 제공 필드로, 최신 데이터를 가져오는 데 사용됩니다.
         prediction_file = latest_prediction.csv_file.path
         
@@ -856,13 +862,18 @@ def lifecycle(request):
             datetime_value = "2023-08-23 00:00:00"
             lot_id = 1000 + i
             pred = 70 + i
-            real = None
+            real = 70
             data.append({"Date": datetime_value, "ID": lot_id, "prediction": pred, "real": real})
- 
+
+
+
     if request.method == "POST":
-        # 사용자가 입력한 'real' 데이터를 받아오기
-        updated_data = request.POST.get('real_values', [])  # 'real_values'라는 키로 데이터가 전송되지 않았을 때 기본 값으로 설정되는 값
-        
+
+        # 사용자가 입력한 'IDReal' 데이터를 JSON 형태로 받아오기
+        updated_data_json = request.POST['IDreal'] 
+        # JSON 데이터를 딕셔너리로 변환
+        updated_data_dict = json.loads(updated_data_json)
+        print(updated_data_dict)
         # POST 요청이 오는 경우에만 prediction_data를 다시 가져와야 함
         # prediction_data 초기화
         try:
@@ -873,25 +884,29 @@ def lifecycle(request):
             # 오류 발생 시, 기본 데이터를 생성해 prediction_data를 초기화
             prediction_data = pd.DataFrame()
             prediction_data = prediction_data.append(data, ignore_index=True)
-            latest_prediction = Prediction_complete()
         
-        # 'real' 컬럼 데이터 추가
-        for item in updated_data:
-            prediction_data.loc[prediction_data['ID'] == item['ID'], 'real'] = item['real']
+        for item in updated_data_dict:
+            id_value = item["ID"]
+            real_value = item['real']   
+            # prediction_data에서 'ID' 값이 일치하는 행을 찾아서 'real' 값을 대체
+            prediction_data.loc[prediction_data['ID'] == id_value, 'real'] = real_value
         
         # 델타 값 계산
         prediction_data['delta'] = (prediction_data['prediction'] - prediction_data['real']).abs()
         
         # 델타 값의 평균 계산
         avg_delta = prediction_data['delta'].mean()
-        latest_prediction.avg_delta = avg_delta
         prediction_data['avg_del'] = avg_delta
-        Date = prediction_data['Date'] 
+        Date = prediction_data['Date'][0] 
+        print(avg_delta)
+        print(Date)
         
         # 데이터를 DB에 다시 저장
-        prediction_csv = StringIO()
-        prediction_data.to_csv(prediction_csv, index=False)
-        latest_prediction.csv_file = ContentFile(prediction_csv.getvalue().encode('utf-8'), name="updated_predictions.csv")
-        latest_prediction.save()
-        
-    return render(request, "hynix/lifecycle.html", {"avg_delta": avg_delta, "Date": Date.to_string() })
+        context = {"avg_delta": avg_delta, "Date": Date}
+        return render(request, "hynix/lifecycle.html", context)
+
+    # POST 요청이 아닌 경우에도 데이터를 전달할 context 생성
+    context = {"data": data}
+
+    # 데이터와 함께 lifecycle.html 페이지를 렌더링해 화면에 보여줌
+    return render(request, "hynix/lifecycle.html", context)
