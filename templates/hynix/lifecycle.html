@@ -1,69 +1,256 @@
 {% extends "hynix/base.html" %}
 {% load static %}
 
+
+
 {% block main %}
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.7.0/css/select.dataTables.min.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/datetime/1.5.1/css/dataTables.dateTime.min.css">
-<link rel="stylesheet" type="text/css" href="https://editor.datatables.net/extensions/Editor/css/editor.dataTables.min.css">
-<link rel="stylesheet" type="text/css" href="{% static 'css/pagebutton.css' %}">
-<!-- <link rel="stylesheet" type="text/css" href="{% static 'css/lifecycle.css' %}"> -->
+<link rel="stylesheet" type="text/css" href="https://editor.datatables.net/extensions/Editor/css/editor.dataTables.min.css"> 
 
 
-      
 
-<div style="text-align: center;">
-    <div id="Chart" style="width: 1200px; height: 600px; margin: 0 auto;"></div>
-    
+<div style="text-align: center;">  <!-- 이 안에 있는 모든 내용들을 가운데 정렬하겠다-->
     <!-- 여백을 추가해주세요 -->
     <div style="margin-bottom: 60px;"></div>
+    <head>
+        <style>
+            /* 기본 스타일 설정 */
+            body {
+                font: 80%/1.45em Arial, Verdana, Helvetica, sans-serif;
+                margin: 0;
+                padding: 0;
+                color: #111; /* 기본 텍스트 색상 */
+                background-color: #fff; /* 기본 배경색상 */
+            }
+            /* 페이지 컨테이너 설정 */
+            #container {
+                margin: 0 auto;
+                width: 960px;
+            }
+            /* 페이지 제목 설정 */
+            h1 {
+                text-align: center;
+                font-size: 1.2em;
+                font-weight: bold;
+                margin: 1em 0;
+            }
     
-   <!-- 표 크기 조절 및 가운데 정렬 -->
-    <div style="width: 60%; margin: 0 auto;">
-        <table id="table_id" class="display">
-            <thead>
-                <tr>
-                    <th>Datetime</th>
-                    <th>Lot-ID</th>
-                    <th>Pred</th>
-                    <th>Real</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in data %}
-                    <tr>
-                        <td>{{ item.datetime }}</td>
-                        <td>{{ item.lot_id }}</td>
-                        <td>{{ item.pred }}</td>
-                        <td>{{ item.real }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
 
 
-    <!-- 표와 그래프 사이 여백 -->
-    <div style="margin-top: 60px;"></div>
+            /* 테이블 위아래 엔트리 색 설정 */
+            div.dataTables_wrapper {
+                background-color: #e31837;
+            }
+            /* 테이블 내용 색 설정 */
+            table.pretty tbody th,
+            table.pretty tbody td {
+                text-align: left;
+                background: #fff !important; /* 흰색 배경 */
+                border: 1px solid #f58025;   /* 주황색 테두리 */
+            }
     
+
+            /* 테이블 기본 스타일 설정 */
+            table.pretty {
+                width: 100%;
+                clear: both;
+                border-collapse: collapse;
+            }
+            /* 테이블 헤더 셀 스타일 설정 */
+            table.pretty th {
+                padding: 5px;
+                border: none; /* 테두리 제거 */
+            }
+            /* 테이블 헤더 셀 스타일 설정 */
+            table.pretty thead th {
+                text-align: center;
+                background: #f58025; /* 주황색 배경 */
+                color: #fff; /* 흰색 텍스트 */
+            }
+            /* 테이블 바닥글 셀 스타일 설정 */
+            table.pretty tfoot th,
+            table.pretty tfoot td {
+                background: #fff; /* 흰색 배경 */
+                text-align: center;
+                font-weight: bold;
+            }
+            
+
+
+            /* 표 엔트리 수 선택 부분 스타일 설정 */
+            .dataTables_length label {
+                color: #fff; /* 흰색 텍스트 색상 */
+                font-weight: bold; /* 진하게 설정 */
+            }
+            /* 검색 입력 부분 스타일 설정 */
+            .dataTables_filter label {
+                color: #fff; /* 흰색 텍스트 색상 */
+                font-weight: bold; /* 진하게 설정 */
+            }
+            /* 표 정보 부분 스타일 설정 */
+            .dataTables_info {
+                color: #fff !important; /* 흰색 텍스트 색상 */
+                font-weight: bold; /* 진하게 설정 */
+            }
+            /* 표 네비게이션 링크 스타일 설정 */
+            .paginate_button {
+                color: #fff; /* 흰색 텍스트 색상 */
+                font-weight: bold; /* 진하게 설정 */
+            }
+        </style>
+    </head>
+
+
+
+    <body>
+        <div style="width: 60%; margin: 0 auto;">
+            <div class="dataTables_wrapper">
+                <table id="table_id" class="display pretty">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>ID</th>
+                            <th>Pred</th>
+                            <th>Real</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in data %}
+                            <tr>
+                                <td>{{ item.Date }}</td>
+                                <td>{{ item.ID }}</td>
+                                <td>{{ item.prediction }}</td>
+                                <td>{{ item.real }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </body>
+
+
+
+    <!-- 여백을 추가해주세요 -->
+    <div style="margin-bottom: 40px;"></div>
     <!-- 데이터 로드 버튼 -->
     <button id="loadData">Load Data</button>
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <style>   
+        #loadData {
+            background-color: white;
+            border: 2px solid red;
+            color: black;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;}
+        
+        #loadData:hover {
+            background-color: red;
+            color: white;}
+    </style>
+     <!-- 표와 그래프 사이 여백 -->
+    <div style="margin-top: 120px;"></div>
+    
+
+
+    <div id="Chart" avg-delta-data="{{ avg_delta }}" data-dates="{{ Date }}" style="width: 1200px; height: 600px; margin: 0 auto;"></div>
+    <style>
+      .extra-space {
+        height: 80px;   /* 원하는 여백 크기를 지정 */}
+    </style>
 </div>
-
-
-
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+
 {% block scripts %}
-<script src="{% static 'js/echarts.js.map' %}"></script>
-<script src="{% static 'js/echarts.js' %}"></script>
-<script src="{% static 'js/echarts.min.js' %}"></script>
-<script src="{% static 'js/chart.js' %}" type="module"></script>
 <script src="{% static 'js/datatableEdit.js' %}"></script>
-<script src="{% static 'js/lifecycle.js' %}"></script>
+<script src="{% static 'js/datatable.js' %}"></script>
+<script src="{% static 'js/echarts.js' %}"></script>
+<script src="{% static 'js/echarts.min.js' %}"></script>v
+
+
+
+{% comment %} <form id="dataForm" method="post">
+    <input type="hidden" name="IDreal" value="{{ data_rows|safe }}">
+    {% csrf_token %}
+</form> {% endcomment %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        // "Load Data" 버튼 클릭 시
+        $("#loadData").click(function() {
+            // CSRF 토큰 가져오기
+            const csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+
+            // 사용자가 입력한 ID와 Real 열 값들 추출
+            const IDreal = [];
+            $("#table_id tbody tr").each(function() {
+                const idValue = $(this).find("td:eq(1)").text();
+                const realValue = $(this).find("td:eq(3)").text();
+
+                // "td:eq(3)" 값이 None이 아니고 비어있지 않은 경우에만 추가
+                if (realValue !== "None" && realValue.trim() !== "") {
+                    IDreal.push({ "ID": idValue, "real": realValue });
+                }
+            });
+
+            // 생성한 FormData 객체에 IDreal 데이터 추가
+            const formData = new FormData();
+            formData.append("IDreal", JSON.stringify(IDreal));
+
+            // POST 요청 보내기
+            $.ajax({
+                url: "{% url 'mlc' %}",
+                type: "POST",
+                headers: {
+                    "X-CSRFToken": csrfToken
+                },
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.status === "success") {
+                        console.log("성공");
+                    }
+                },
+                error: function(error) {
+                    console.log("오류");
+                }
+            });
+        });
+    });
+
+    {% comment %} var avg_delta_data = {{ avg_delta }};
+    var dates_data = {{ Date }}; {% endcomment %}
+    {% comment %} console.log("avg_delta_data:", avg_delta_data);
+    console.log("dates_data:", dates_data); {% endcomment %}
+</script>
+
+
+
+{% comment %} <script src="{% static 'js/echarts.js.map' %}"></script> {% endcomment %}
+
+<script src="{% static 'js/lifecyclechart.js' %}"></script>
+
+
+
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
 <script type="text/javascript" charset="utf8" src="https://editor.datatables.net/extensions/Editor/js/dataTables.editor.min.js"></script>
 {% endblock %}
+
