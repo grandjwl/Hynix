@@ -62,6 +62,7 @@ def MakeSimulationData(test, filename):
 def model1_prediction(test_data):
     test_data = MakeSimulationData(test_data, 'prepro_kdy.csv')
     dp = DataPreprocessor()
+    
     deleted_columns, null_columns, to_drop_all = dp.load_pickles()
     final_test = dp.preprocessing_realtest(test_data)
     scaled_final_test = dp.scale_data_without_target(final_test)
@@ -128,8 +129,8 @@ def ensemble_models(test_data):
     return prediction
 
 def calculate_confidence_interval(predictions_df, alpha=0.9):
-    # predictions = predictions_df['prediction']
-    predictions = predictions_df
+    predictions = predictions_df['prediction']
+    # predictions = predictions_df
 
     # Bootstrap re-sampling을 사용하여 신뢰구간 계산
     bootstrapped_samples = [resample(predictions) for _ in range(1000)]
@@ -144,18 +145,6 @@ def main(request):
 
 from sklearn.utils import resample
 
-def calculate_confidence_interval(predictions_df, alpha=0.9):
-    predictions = predictions_df['prediction']
-    # predictions = predictions_df
-
-    # Bootstrap re-sampling을 사용하여 신뢰구간 계산
-    bootstrapped_samples = [resample(predictions) for _ in range(1000)]
-    min_val = np.percentile(bootstrapped_samples, (1-alpha)/2*100)
-    max_val = np.percentile(bootstrapped_samples, alpha+((1-alpha)/2)*100)
-    mean_val = predictions.mean()
-
-    return min_val, max_val, mean_val
-
 def simulation(request):
     prediction = None
     confidence_interval = {"min": None, "max": None, "mean": None}
@@ -165,13 +154,14 @@ def simulation(request):
 
     if request.method == "POST" and 'test_data' in request.FILES:
         test_data_file = request.FILES['test_data']
+        isFull = request.POST["isFull"]
+
         input_csv_instance = InputCSV(name=test_data_file.name, data=test_data_file)
         input_csv_instance.save()
-        test_data = pd.read_csv(test_data_file)
-        test_data = test_data.iloc[0,:]
-        test_data = test_data.to_frame().transpose()
         
-        # 첫 번째 행에서 마지막으로 값이 있는 컬럼의 이름을 찾기
+        test_data = pd.read_csv(test_data_file)
+        
+        # 첫 번째 행에서 마지막으로 값이 있는 컬럼의 이름을 찾기 (멘토님이랑 상의 : 변경 예정)
         first_row = test_data.iloc[0].dropna()
         if not first_row.empty:
             last_filled_column_name = first_row.index[-1]
@@ -192,15 +182,15 @@ def simulation(request):
         # min_val, max_val, mean_val = calculate_confidence_interval(prediction)
         confidence_interval = {"min": min_val, "max": max_val, "mean": mean_val}
         
-        lifecycle_instance = WLifecycle(min_value=min_val, max_value=max_val)
+        lifecycle_instance = WLifecycle(min_value=min_val, max_value=max_val, avg_value=mean_val)
         lifecycle_instance.save()
         
-        # prediction_csv = StringIO()
-        # prediction.to_csv(prediction_csv, index=False)
+        prediction_csv = StringIO()
+        prediction.to_csv(prediction_csv, index=False)
         
         # 예측 결과를 Prediction_complete 모델에만 저장
-        # prediction_complete_model = Prediction_complete(name="Prediction Result", csv_file=ContentFile(prediction_csv.getvalue().encode('utf-8'), name="complete_predictions.csv"))
-        # prediction_complete_model.save()
+        prediction_complete_model = Prediction_complete(name="Prediction Result", csv_file=ContentFile(prediction_csv.getvalue().encode('utf-8'), name="complete_predictions.csv"))
+        prediction_complete_model.save()
     return render(request, "hynix/simulation.html", {"prediction": prediction, "data_json": test_data_json, "confidence_interval": confidence_interval})
 
 def lifecycle(request):
