@@ -26,8 +26,6 @@ random.seed(1234)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # 동연
-
-
 class DataPreprocessor:
     def __init__(self):
         self.deleted_columns = None
