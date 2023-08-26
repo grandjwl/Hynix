@@ -22,170 +22,52 @@
   <div class="row">
     <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
       <!-- file upload -->
-      <div class="file_upload_container" style="display: none;">
+      <div class="file_upload_container">
         <div class="card">
           
           <div class="drop_box1">
-            <header>
-              <img src="{% static 'img/upload.png' %}" alt="" class="uploaded-image">
-              <br>
-              <h5><b>Choose Your File to Upload</b></h5>
-            </header>
-            <input type="file" hidden accept=".csv" name="file_name" style="display: none;">
-            <button class="choose_btn">Choose File</button>
+            <div class="file-upload">
+              <div class="file-select">
+                <div class="file-select-button" id="fileName">Choose File</div>
+                <div class="file-select-name" id="noFile">No file chosen...</div> 
+                <form method="post" accept=".csv" enctype="multipart/form-data" id="uploadForm">
+                  {% csrf_token %}
+                  <input type="file" name="test_data" id="chooseFile">
+                  <label>
+                    공정 진행 완료
+                    <input type="radio" name="isFull" id="isFull" value="1">
+                  </label>
+                  
+                  <input type="submit" class="upload_btn" name="upload_btn">
+                </form>
+              </div>
+            </div>
           </div>
 
-          <div class="drop_box2" style="display:none;">
-            <header id="filename">
-              <img src="{% static 'img/upload.png' %}" alt="" class="uploaded-image">
-              <br>
-              <h5><b>Press to Upload</b></h5>
-            </header>
-            <form action="" method="post">
-              {% csrf_token %}
-              <button type="button" class="upload_btn" id="upload_btn">Upload</button>
-            </form>
-          </div>
+        </div>
+      </div>
+
+      <!-- csv file table -->
+      <div class="table-responsive small">
+        <div style="width:100%; height:400px; overflow:auto">
+          <table class="table table-striped table-sm">
+            <thead>
+                <tr class="tableHead">
+                </tr>
+            </thead>
+            <tbody class="tableBody">
+            </tbody>
+          </table>
+        </div>
+        <br>
+        <!-- prediction button -->
+        <div class="bt_wrapper">
+          <button type="button" class="pred">Predict</button>
         </div>
       </div>
 
       <!-- dashboard -->
       <div id="chart" style="width:1220px;height:500px;display:none;"></div>
-
-      <!-- csv file table -->
-      <div class="table-responsive small">
-        <div class="bt_wrapper">
-          <button class="reupload">Upload</button>
-          <button class="pred">Predict</button>
-        </div>
-
-        <br><br><br>
-        <table class="table table-striped table-sm">
-          <thead>
-              <tr>
-              <th scope="col">ID</th>
-              <th scope="col">Time</th>
-              <th scope="col">X1</th>
-              <th scope="col">X2</th>
-              <th scope="col">X3</th>
-              </tr>
-          </thead>
-          <tbody>
-              <tr>
-              <td>1,001</td>
-              <td>random</td>
-              <td>data</td>
-              <td>placeholder</td>
-              <td>text</td>
-              </tr>
-              <tr>
-              <td>1,002</td>
-              <td>placeholder</td>
-              <td>irrelevant</td>
-              <td>visual</td>
-              <td>layout</td>
-              </tr>
-              <tr>
-              <td>1,003</td>
-              <td>data</td>
-              <td>rich</td>
-              <td>dashboard</td>
-              <td>tabular</td>
-              </tr>
-              <tr>
-              <td>1,003</td>
-              <td>information</td>
-              <td>placeholder</td>
-              <td>illustrative</td>
-              <td>data</td>
-              </tr>
-              <tr>
-              <td>1,004</td>
-              <td>text</td>
-              <td>random</td>
-              <td>layout</td>
-              <td>dashboard</td>
-              </tr>
-              <tr>
-              <td>1,005</td>
-              <td>dashboard</td>
-              <td>irrelevant</td>
-              <td>text</td>
-              <td>placeholder</td>
-              </tr>
-              <tr>
-              <td>1,006</td>
-              <td>dashboard</td>
-              <td>illustrative</td>
-              <td>rich</td>
-              <td>data</td>
-              </tr>
-              <tr>
-              <td>1,007</td>
-              <td>placeholder</td>
-              <td>tabular</td>
-              <td>information</td>
-              <td>irrelevant</td>
-              </tr>
-              <tr>
-              <td>1,008</td>
-              <td>random</td>
-              <td>data</td>
-              <td>placeholder</td>
-              <td>text</td>
-              </tr>
-              <tr>
-              <td>1,009</td>
-              <td>placeholder</td>
-              <td>irrelevant</td>
-              <td>visual</td>
-              <td>layout</td>
-              </tr>
-              <tr>
-              <td>1,010</td>
-              <td>data</td>
-              <td>rich</td>
-              <td>dashboard</td>
-              <td>tabular</td>
-              </tr>
-              <tr>
-              <td>1,011</td>
-              <td>information</td>
-              <td>placeholder</td>
-              <td>illustrative</td>
-              <td>data</td>
-              </tr>
-              <tr>
-              <td>1,012</td>
-              <td>text</td>
-              <td>placeholder</td>
-              <td>layout</td>
-              <td>dashboard</td>
-              </tr>
-              <tr>
-              <td>1,013</td>
-              <td>dashboard</td>
-              <td>irrelevant</td>
-              <td>text</td>
-              <td>visual</td>
-              </tr>
-              <tr>
-              <td>1,014</td>
-              <td>dashboard</td>
-              <td>illustrative</td>
-              <td>rich</td>
-              <td>data</td>
-              </tr>
-              <tr>
-              <td>1,015</td>
-              <td>random</td>
-              <td>tabular</td>
-              <td>information</td>
-              <td>text</td>
-              </tr>
-          </tbody>
-        </table>
-      </div>
     </div>
   </div>
 </div>
@@ -196,5 +78,10 @@
 <script src="{% static 'js/echarts.js.map' %}"></script>
 <script src="{% static 'js/echarts.js' %}"></script>
 <script src="{% static 'js/echarts.min.js' %}"></script>
+<script type="text/javascript">
+  var data = {{ data_json|safe }};
+  var minmax = {{ confidence_interval|safe }};
+  console.log(minmax);
+</script>
 <script src="{% static 'js/simulation.js' %}" type="module"></script>
 {% endblock %}

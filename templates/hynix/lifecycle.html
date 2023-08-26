@@ -158,7 +158,7 @@
     
 
 
-    <div id="Chart" avg-delta-data="{{ avg_delta }}" data-dates="{{ Date }}" style="width: 1200px; height: 600px; margin: 0 auto;"></div>
+    <div id="Chart" style="width: 1200px; height: 600px; margin: 0 auto;"></div>
     <style>
       .extra-space {
         height: 80px;   /* 원하는 여백 크기를 지정 */}
@@ -184,33 +184,25 @@
 
 
 
-{% comment %} <form id="dataForm" method="post">
-    <input type="hidden" name="IDreal" value="{{ data_rows|safe }}">
-    {% csrf_token %}
-</form> {% endcomment %}
 <script type="text/javascript">
     $(document).ready(function() {
         // "Load Data" 버튼 클릭 시
         $("#loadData").click(function() {
             // CSRF 토큰 가져오기
             const csrfToken = $("input[name=csrfmiddlewaretoken]").val();
-
+    
             // 사용자가 입력한 ID와 Real 열 값들 추출
             const IDreal = [];
             $("#table_id tbody tr").each(function() {
                 const idValue = $(this).find("td:eq(1)").text();
                 const realValue = $(this).find("td:eq(3)").text();
-
+    
                 // "td:eq(3)" 값이 None이 아니고 비어있지 않은 경우에만 추가
                 if (realValue !== "None" && realValue.trim() !== "") {
                     IDreal.push({ "ID": idValue, "real": realValue });
                 }
             });
-
-            // 생성한 FormData 객체에 IDreal 데이터 추가
-            const formData = new FormData();
-            formData.append("IDreal", JSON.stringify(IDreal));
-
+    
             // POST 요청 보내기
             $.ajax({
                 url: "{% url 'mlc' %}",
@@ -218,9 +210,7 @@
                 headers: {
                     "X-CSRFToken": csrfToken
                 },
-                data: formData,
-                processData: false,
-                contentType: false,
+                data: { IDreal: JSON.stringify(IDreal) }, // 수정된 부분
                 success: function(response) {
                     if (response.status === "success") {
                         console.log("성공");
@@ -231,18 +221,8 @@
                 }
             });
         });
-    });
-
-    {% comment %} var avg_delta_data = {{ avg_delta }};
-    var dates_data = {{ Date }}; {% endcomment %}
-    {% comment %} console.log("avg_delta_data:", avg_delta_data);
-    console.log("dates_data:", dates_data); {% endcomment %}
+    });   
 </script>
-
-
-
-{% comment %} <script src="{% static 'js/echarts.js.map' %}"></script> {% endcomment %}
-
 <script src="{% static 'js/lifecyclechart.js' %}"></script>
 
 
