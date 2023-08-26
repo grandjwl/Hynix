@@ -30,9 +30,9 @@
               <div class="file-select">
                 <div class="file-select-button" id="fileName">Choose File</div>
                 <div class="file-select-name" id="noFile">No file chosen...</div> 
-                <form method="post" accept=".csv" enctype="multipart/form-data" id="uploadForm">
+                <form method="post" enctype="multipart/form-data" id="uploadForm">
                   {% csrf_token %}
-                  <input type="file" name="test_data" id="chooseFile">
+                  <input type="file" accept=".csv" name="test_data" id="chooseFile">
                   <label>
                     공정 진행 완료
                     <input type="radio" name="isFull" id="isFull" value="1">

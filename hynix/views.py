@@ -4,7 +4,6 @@ from django.core.files.base import ContentFile
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import PreprocessedCSV, Prediction_complete, InputCSV, WLifecycle
-import pandas as pd
 import numpy as np
 import shutil
 import re
@@ -27,11 +26,61 @@ import random
 import torch.backends.cudnn as cudnn
 from torch.utils.data import Dataset, DataLoader, TensorDataset
 from sklearn.utils import resample
-from hynix.ensemble import DataPreprocessor, PreprocessAndPredict, Preprocessor, LSTM
+from hynix.ensemble import DataPreprocessor, PreprocessAndPredict, Preprocessor
 import random
-from hynix.ensemble import LSTM_model
 from pycaret.regression import *
 import json
+import pandas as pd
+from sklearn.utils import resample
+
+
+class LSTM_model(nn.Module):
+    def __init__(self, input_size, hidden_size, output_size, num_layers):
+        super(LSTM_model, self).__init__()
+        
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.num_layers = num_layers
+        self.output_size = output_size
+        self.sequence_len = 1
+        
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers,
+                            batch_first=True, bidirectional=False)
+        self.fc = nn.Linear(hidden_size, output_size)
+    
+    def reset_hid_cell(self):
+        self.hidden = (
+            torch.zeros(self.num_layers, self.sequence_len, self.hidden_size),
+            torch.zeros(self.num_layers, self.sequence_len, self.hidden_size))
+    
+    def forward(self, x):
+        output, _ = self.lstm(x)
+        output = self.fc(output)
+        # output = self.fc(output[:, -1, :])
+        return output
+        # return output.view(-1, self.output_size)
+        
+        
+class LSTM(nn.Module):
+    def __init__(self, input_size, hidden_size, num_layers, output_size, dropout_rate):
+        super(LSTM, self).__init__()
+        self.hidden_size = hidden_size
+        self.num_layers = num_layers
+        self.lstm1 = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
+        self.dropout = nn.Dropout(dropout_rate)
+        self.lstm2 = nn.LSTM(hidden_size, hidden_size, num_layers, batch_first=True)
+        self.fc = nn.Linear(hidden_size, output_size)
+
+    def forward(self, x):
+        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
+        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
+
+        out, _ = self.lstm1(x, (h0, c0))
+        out = self.dropout(out)
+        out, _ = self.lstm2(out)
+        out = self.fc(out[:, -1, :])
+        return out
+
 
 # 50번의 시뮬레이션 데이터 생성
 def MakeSimulationData(test, filename):
@@ -62,7 +111,6 @@ def MakeSimulationData(test, filename):
 def model1_prediction(test_data):
     test_data = MakeSimulationData(test_data, 'prepro_kdy.csv')
     dp = DataPreprocessor()
-    
     deleted_columns, null_columns, to_drop_all = dp.load_pickles()
     final_test = dp.preprocessing_realtest(test_data)
     scaled_final_test = dp.scale_data_without_target(final_test)
@@ -114,23 +162,24 @@ def ensemble_models(test_data):
     weights = [1/mse for mse in mse_values]
     normalized_weights = [weight/sum(weights) for weight in weights]
     
-    pred1 = model1_prediction(test_data)
+    # pred1 = model1_prediction(test_data)
     pred2 = model2_prediction(test_data)
     pred3 = model3_prediction(test_data)
     
-    pred1 = pred1.reset_index(drop=True)
+    # pred1 = pred1.reset_index(drop=True)
     pred2 = pred2.reset_index(drop=True)
     pred3 = pred3.reset_index(drop=True)
 
-    ensemble_module = pred1.iloc[:, 0]*normalized_weights[0] + pred2.iloc[:, 0]*normalized_weights[1] + pred3.iloc[:, 0]*normalized_weights[2]
+    # ensemble_module = pred1.iloc[:, 0]*normalized_weights[0] + pred2.iloc[:, 0]*normalized_weights[1] + pred3.iloc[:, 0]*normalized_weights[2]
+    ensemble_module = pred2.iloc[:, 0]*normalized_weights[1] + pred3.iloc[:, 0]*normalized_weights[2]
     predictions = ensemble_module
     predictions.columns = ['prediction']
     prediction = pd.concat([test_data, predictions], axis=1)
     return prediction
 
 def calculate_confidence_interval(predictions_df, alpha=0.9):
-    predictions = predictions_df['prediction']
-    # predictions = predictions_df
+    # predictions = predictions_df['prediction']
+    predictions = predictions_df
 
     # Bootstrap re-sampling을 사용하여 신뢰구간 계산
     bootstrapped_samples = [resample(predictions) for _ in range(1000)]
@@ -142,8 +191,6 @@ def calculate_confidence_interval(predictions_df, alpha=0.9):
 
 def main(request):
     return render(request, 'hynix/main.html',{"contents":""})
-
-from sklearn.utils import resample
 
 def simulation(request):
     prediction = None
@@ -159,7 +206,9 @@ def simulation(request):
         input_csv_instance = InputCSV(name=test_data_file.name, data=test_data_file)
         input_csv_instance.save()
         
-        test_data = pd.read_csv(test_data_file)
+        uploaded_file_path = input_csv_instance.data.path
+        test_data = pd.read_csv(uploaded_file_path)
+        print(test_data.info())
         
         # 첫 번째 행에서 마지막으로 값이 있는 컬럼의 이름을 찾기 (멘토님이랑 상의 : 변경 예정)
         first_row = test_data.iloc[0].dropna()
@@ -170,16 +219,14 @@ def simulation(request):
         test_data_temp = test_data
         test_data_temp = test_data_temp.drop(columns=['Unnamed: 0'], errors='ignore')
         test_data_json = test_data_temp.to_json(orient='records')
-    
+        
         prediction = ensemble_models(test_data)
         # 신뢰구간 계산
         min_val, max_val, mean_val = calculate_confidence_interval(prediction)
         
         # prediction = np.random.randint(10,100,50)
-        # min_val = [min(prediction) for i in range(10)]
-        # max_val = [max(prediction) for i in range(10)]
-        # mean_val = [sum(prediction)//len(prediction) for i in range(10)]
         # min_val, max_val, mean_val = calculate_confidence_interval(prediction)
+        
         confidence_interval = {"min": min_val, "max": max_val, "mean": mean_val}
         
         lifecycle_instance = WLifecycle(min_value=min_val, max_value=max_val, avg_value=mean_val)
