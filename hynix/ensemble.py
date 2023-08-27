@@ -11,7 +11,7 @@ import random
 from torch.utils.data import Dataset, DataLoader, TensorDataset
 from scipy import stats
 from sklearn.preprocessing import StandardScaler
-
+from hynix.model_class import LSTM, LSTM_model
 import warnings
 warnings.filterwarnings(action='ignore')
 
@@ -23,9 +23,11 @@ np.random.seed(1234)
 cudnn.benchmark = False
 cudnn.deterministic = True
 random.seed(1234)
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # 동연
+
 class DataPreprocessor:
     def __init__(self):
         self.deleted_columns = None
@@ -183,6 +185,7 @@ class DataPreprocessor:
         return data_preprocessed_scaled
 
 # 고운
+
 class PreprocessAndPredict:
     class RealTestDataset(Dataset):
         def __init__(self, df):
@@ -206,7 +209,6 @@ class PreprocessAndPredict:
                 data[col] = pd.to_datetime(data[col])
 
         ts_data = data.select_dtypes("datetime")
-        org_idx = ts_data.index.unique().to_list()[0]
         ts_data.reset_index(drop=True, inplace=True)
 
         for idx in ts_data.index:
@@ -380,15 +382,16 @@ class PreprocessAndPredict:
         return test
 
     def run(self, data):
+        
         print("start test")
         test = self.test_preprocess(data)
         test = self.RealTestDataset(test)
         test_loader = DataLoader(test, batch_size=833, shuffle=False, drop_last=False)
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        model = torch.load('hynix\ensemble\cgw\gw_final_lstm.pt')
-        
+        model = LSTM_model(391,256,1,3)
+        model.load_state_dict(torch.load('models\gw\lstm_best_model_sgd_cosine.pt'))
+        print("load model complete")
         outputs = []
-        real = []
         for data in test_loader:
             x = data["x"].to(device)
             x = x.to(torch.float)
@@ -400,31 +403,6 @@ class PreprocessAndPredict:
 
         outputs = torch.cat(outputs, dim=0) * 100
         return outputs
-class LSTM_model(nn.Module):
-    def __init__(self, input_size, hidden_size, output_size, num_layers):
-        super(LSTM_model, self).__init__()
-        
-        self.input_size = input_size
-        self.hidden_size = hidden_size
-        self.num_layers = num_layers
-        self.output_size = output_size
-        self.sequence_len = 1
-        
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers,
-                            batch_first=True, bidirectional=False)
-        self.fc = nn.Linear(hidden_size, output_size)
-    
-    def reset_hid_cell(self):
-        self.hidden = (
-            torch.zeros(self.num_layers, self.sequence_len, self.hidden_size),
-            torch.zeros(self.num_layers, self.sequence_len, self.hidden_size))
-    
-    def forward(self, x):
-        output, _ = self.lstm(x)
-        output = self.fc(output)
-        # output = self.fc(output[:, -1, :])
-        return output
-        # return output.view(-1, self.output_size)
 
 # 정우
 class Preprocessor :
@@ -440,7 +418,9 @@ class Preprocessor :
             if df[col].dtype == "object":
                 df[col] = pd.to_datetime(df[col])
         datatmp = df.columns.to_list()[188:1454]
+        
         ts_data = df.select_dtypes("datetime")
+        ts_data.reset_index(drop=True, inplace=True)
         for idx in ts_data.index:
             ts_data.sort_values(by=idx,axis=1, inplace=True)
 
@@ -615,5 +595,6 @@ class Preprocessor :
         Rtest = self.replace_outliers_median_preprocessing_Rtest(Rtest)
         Rtest = self.fillna_mean_preprocessing_Rtest(Rtest)
         Rtest = self.scale_preprocessing_Rtest(Rtest)
+        print("finish preprocessing")
         return Rtest
     

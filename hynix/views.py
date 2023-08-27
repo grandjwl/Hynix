@@ -1,9 +1,9 @@
+from .models import PreprocessedCSV, Prediction_complete, WLifecycle, Wsimulation
 from django.db import models as dj_models
 from io import StringIO
 from django.core.files.base import ContentFile
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import PreprocessedCSV, Prediction_complete, InputCSV, WLifecycle
 import numpy as np
 import shutil
 import re
@@ -32,62 +32,16 @@ from pycaret.regression import *
 import json
 import pandas as pd
 from sklearn.utils import resample
+from hynix.model_class import LSTM, LSTM_model
 
-
-class LSTM_model(nn.Module):
-    def __init__(self, input_size, hidden_size, output_size, num_layers):
-        super(LSTM_model, self).__init__()
-        
-        self.input_size = input_size
-        self.hidden_size = hidden_size
-        self.num_layers = num_layers
-        self.output_size = output_size
-        self.sequence_len = 1
-        
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers,
-                            batch_first=True, bidirectional=False)
-        self.fc = nn.Linear(hidden_size, output_size)
-    
-    def reset_hid_cell(self):
-        self.hidden = (
-            torch.zeros(self.num_layers, self.sequence_len, self.hidden_size),
-            torch.zeros(self.num_layers, self.sequence_len, self.hidden_size))
-    
-    def forward(self, x):
-        output, _ = self.lstm(x)
-        output = self.fc(output)
-        # output = self.fc(output[:, -1, :])
-        return output
-        # return output.view(-1, self.output_size)
-        
-        
-class LSTM(nn.Module):
-    def __init__(self, input_size, hidden_size, num_layers, output_size, dropout_rate):
-        super(LSTM, self).__init__()
-        self.hidden_size = hidden_size
-        self.num_layers = num_layers
-        self.lstm1 = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
-        self.dropout = nn.Dropout(dropout_rate)
-        self.lstm2 = nn.LSTM(hidden_size, hidden_size, num_layers, batch_first=True)
-        self.fc = nn.Linear(hidden_size, output_size)
-
-    def forward(self, x):
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
-        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
-
-        out, _ = self.lstm1(x, (h0, c0))
-        out = self.dropout(out)
-        out, _ = self.lstm2(out)
-        out = self.fc(out[:, -1, :])
-        return out
-
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # 50번의 시뮬레이션 데이터 생성
 def MakeSimulationData(test, filename):
     prediction_obj = PreprocessedCSV.objects.filter(data__contains=filename).first()
 
     if prediction_obj:
-        file_path = prediction_obj.csv_file.path
+        file_path = prediction_obj.data.path
         
         # 파일을 직접 Pandas 데이터프레임으로 읽기
         train_df = pd.read_csv(file_path)
@@ -109,6 +63,181 @@ def MakeSimulationData(test, filename):
 
 # 동연
 def model1_prediction(test_data):
+    class LSTM(nn.Module):
+        def __init__(self, input_size, hidden_size, num_layers, output_size, dropout_rate):
+            super(LSTM, self).__init__()
+            self.hidden_size = hidden_size
+            self.num_layers = num_layers
+            self.lstm1 = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
+            self.dropout = nn.Dropout(dropout_rate)
+            self.lstm2 = nn.LSTM(hidden_size, hidden_size, num_layers, batch_first=True)
+            self.fc = nn.Linear(hidden_size, output_size)
+
+        def forward(self, x):
+            h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
+            c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
+
+            out, _ = self.lstm1(x, (h0, c0))
+            out = self.dropout(out)
+            out, _ = self.lstm2(out)
+            out = self.fc(out[:, -1, :])
+            return out
+    class DataPreprocessor:
+        def __init__(self):
+            self.deleted_columns = None
+            self.null_columns = None
+            self.to_drop_all = None
+
+        def sort_time(self, data):
+            for idx,col in enumerate(data.columns[188:1454]):
+                if data[col].dtype == "object":
+                    data[col] = pd.to_datetime(data[col])
+            ts_data = data.select_dtypes("datetime")
+
+            for idx in ts_data.index:
+                ts_data.sort_values(by=idx,axis=1, inplace=True)
+            result = []
+            datatmp = data.columns.to_list()[188:1454]
+            for idx,col in enumerate(datatmp):
+                if data[col].dtype == "<M8[ns]":
+                    cur = int(col[1:]) # x195 -> 195
+                    i = idx
+                    tmp = []
+                    while i > 0:
+                        i -= 1
+                        next = datatmp[i] # x194
+                        if data[next].dtype == "<M8[ns]":
+                            break
+                        else:
+                            tmp.append(next)
+                            tmp.sort()
+                    result.append((col,tmp))
+            ts_final = []
+            for elem in ts_data.columns:
+                for target,content in result:
+                    if elem == target:
+                        ts_final.extend(content)
+                        ts_final.append(target)
+            ts_final = data[ts_final]
+            front = data.loc[:,:"x193"]
+            back = data.loc[:,"x1461":]
+            data = pd.concat([front, ts_final, back], axis = 1)
+            return data
+
+        def Qtime(self, data, ts_data):
+            df = pd.DataFrame(index=data.index)
+            for idx in range(1, len(ts_data.columns)):
+                col = []
+                for jdx in range(len(ts_data.index)):
+                    time1 = datetime.strptime(ts_data.iloc[jdx,idx],"%Y-%m-%d %H:%M:%S")
+                    time2 = datetime.strptime(ts_data.iloc[jdx,idx-1],"%Y-%m-%d %H:%M:%S")
+                    diff =  time1 - time2
+                    col.append(round(diff.seconds/(60*60),2))
+                df[ts_data.columns[idx]+"-"+ts_data.columns[idx-1]] = col
+            with open('hynix/ensemble/kdy/train_q_train.pkl', 'wb') as f:
+                pickle.dump(df, f)
+            return df
+
+        def delete_null1(self, final):
+            empty_columns = final.columns[final.isnull().all()]
+            final = final.drop(empty_columns, axis=1)
+            self.deleted_columns = list(empty_columns)
+            with open('hynix/ensemble/kdy/deleted_columns.pkl', 'wb') as f:
+                pickle.dump(self.deleted_columns, f)
+            return final, self.deleted_columns
+
+        def delete_null2(self, final):
+            null_threshold = 0.95 
+            null_counts = final.isnull().sum() 
+            total_rows = final.shape[0]
+            self.null_columns = null_counts[null_counts / total_rows >= null_threshold].index.tolist()
+            final = final.drop(self.null_columns, axis=1)
+            with open('hynix/ensemble/kdy/null_columns.pkl', 'wb') as f:
+                pickle.dump(self.null_columns, f)    
+            return final, self.null_columns
+        
+        def fillna_null(self, final):
+            final.drop(final.columns[0], axis=1, inplace = True)
+            null_columns = final.columns[final.isnull().any()]
+            for column in null_columns:
+                noise = np.random.normal(loc=0, scale=0.01, size=final[column].isnull().sum())
+                final.loc[final[column].isnull(), column] = noise
+            return final
+
+        def drop_corrfeature(self, final):
+            corr_matrix_all = final.corr().abs()
+            upper_all = corr_matrix_all.where(np.triu(np.ones(corr_matrix_all.shape), k=1).astype(bool))
+            to_drop_all = [column for column in upper_all.columns if any(upper_all[column] > 0.8)]
+            self.to_drop_all = [column for column in upper_all.columns if any(upper_all[column] > 0.8)]
+            final = final.drop(self.to_drop_all, axis=1)
+            with open('hynix/ensemble/kdy/to_drop_all.pkl', 'wb') as f:
+                pickle.dump(self.to_drop_all, f) 
+            return final, self.to_drop_all
+        
+        def preprocessing_train(self, data):
+            a = self.sort_time(data)
+            train_ts_data = a.select_dtypes("datetime").astype("str")
+            train_q = self.Qtime(a,train_ts_data)
+            final, deleted_columns = self.delete_null1(data)
+            final, null_columns = self.delete_null2(final)
+            final = self.fillna_null(final)
+            final, to_drop_all = self.drop_corrfeature(final)
+            final = final.sort_index()
+            final =  final.select_dtypes(include=['float64'])
+            final = pd.concat([final,train_q],axis=1)
+            return final, to_drop_all, deleted_columns, null_columns
+        
+        def preprocessing_test(self, data):
+            a = self.sort_time(data)
+            train_ts_data = a.select_dtypes("datetime").astype("str")
+            train_q = self.Qtime(a,train_ts_data)
+            final = data.drop(self.deleted_columns, axis=1)
+            final = final.drop(self.null_columns, axis=1)
+            final = self.fillna_null(final)
+            final = final.drop(self.to_drop_all, axis=1)
+            final = final.sort_index()
+            final =  final.select_dtypes(include=['float64'])
+            final = pd.concat([final,train_q],axis=1)
+            return final
+        
+        def load_pickles(self):
+            with open('hynix/ensemble/kdy/deleted_columns.pkl', "rb") as file:
+                deleted_columns = pickle.load(file)
+            with open('hynix/ensemble/kdy/null_columns.pkl', "rb") as file:
+                null_columns = pickle.load(file)
+            with open('hynix/ensemble/kdy/to_drop_all.pkl', "rb") as file:
+                to_drop_all = pickle.load(file)
+            return deleted_columns, null_columns, to_drop_all
+        
+        def preprocessing_realtest(self, data):
+            deleted_columns, null_columns, to_drop_all = DataPreprocessor.load_pickles(self)
+            a = self.sort_time(data)
+            train_ts_data = a.select_dtypes("datetime").astype("str")
+            train_q = self.Qtime(a,train_ts_data)
+            final = data.drop(deleted_columns, axis=1)
+            final = final.drop(null_columns, axis=1)
+            final = self.fillna_null(final)
+            final = final.drop(to_drop_all, axis=1)
+            final = final.sort_index()
+            final =  final.select_dtypes(include=['float64'])
+            final = pd.concat([final,train_q],axis=1)
+            return final
+        
+        def scale_data(self, temp):
+            scaler = MinMaxScaler()
+            final_temp = pd.DataFrame(temp['Y'])
+            temp = temp.drop('Y', axis=1)
+            data_preprocessed_scaled = scaler.fit_transform(temp)
+            data_preprocessed_scaled = pd.DataFrame(data_preprocessed_scaled, columns=temp.columns[:], index=temp.index)
+            data_preprocessed_scaled['Y'] = final_temp['Y'] / 100 
+            return data_preprocessed_scaled
+        
+        def scale_data_without_target(self, temp):
+            scaler = MinMaxScaler()
+            data_preprocessed_scaled = scaler.fit_transform(temp)
+            data_preprocessed_scaled = pd.DataFrame(data_preprocessed_scaled, columns=temp.columns[:], index=temp.index)
+            return data_preprocessed_scaled
+
     test_data = MakeSimulationData(test_data, 'prepro_kdy.csv')
     dp = DataPreprocessor()
     deleted_columns, null_columns, to_drop_all = dp.load_pickles()
@@ -116,6 +245,7 @@ def model1_prediction(test_data):
     scaled_final_test = dp.scale_data_without_target(final_test)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        
     model = torch.load('hynix/ensemble/kdy/final_best_model.pt')
     model.eval()
 
@@ -137,7 +267,6 @@ def model2_prediction(test_data):
     test_data = MakeSimulationData(test_data, 'prepro_cgw.csv')
     pp = PreprocessAndPredict()
     pred = pp.run(test_data)
-    # 100 곱하기
     pred = pd.DataFrame(pred.detach().numpy())
     return pred
 
@@ -164,23 +293,18 @@ def ensemble_models(test_data):
     
     # pred1 = model1_prediction(test_data)
     pred2 = model2_prediction(test_data)
-    pred3 = model3_prediction(test_data)
+    # pred3 = model3_prediction(test_data)
     
     # pred1 = pred1.reset_index(drop=True)
     pred2 = pred2.reset_index(drop=True)
-    pred3 = pred3.reset_index(drop=True)
+    # pred3 = pred3.reset_index(drop=True)
 
     # ensemble_module = pred1.iloc[:, 0]*normalized_weights[0] + pred2.iloc[:, 0]*normalized_weights[1] + pred3.iloc[:, 0]*normalized_weights[2]
-    ensemble_module = pred2.iloc[:, 0]*normalized_weights[1] + pred3.iloc[:, 0]*normalized_weights[2]
-    predictions = ensemble_module
-    predictions.columns = ['prediction']
-    prediction = pd.concat([test_data, predictions], axis=1)
-    return prediction
+    predictions = pred2.iloc[:, 0]*normalized_weights[1]
 
-def calculate_confidence_interval(predictions_df, alpha=0.9):
-    # predictions = predictions_df['prediction']
-    predictions = predictions_df
+    return predictions
 
+def calculate_confidence_interval(predictions, alpha=0.9):
     # Bootstrap re-sampling을 사용하여 신뢰구간 계산
     bootstrapped_samples = [resample(predictions) for _ in range(1000)]
     min_val = np.percentile(bootstrapped_samples, (1-alpha)/2*100)
@@ -194,7 +318,7 @@ def main(request):
 
 def simulation(request):
     prediction = None
-    confidence_interval = {"min": None, "max": None, "mean": None}
+    confidence_interval = {"min": [], "max": [], "avg": []}
     test_data_json = '{}'  
     test_data = None
     last_filled_column_name = None
@@ -203,12 +327,16 @@ def simulation(request):
         test_data_file = request.FILES['test_data']
         isFull = request.POST["isFull"]
 
-        input_csv_instance = InputCSV(name=test_data_file.name, data=test_data_file)
+        input_csv_instance = Wsimulation(test_csv=test_data_file)
         input_csv_instance.save()
         
-        uploaded_file_path = input_csv_instance.data.path
+        # is_full_data 값이 True인 경우 WLifecycle 테이블에도 저장
+        if isFull:
+            lifecycle_instance = WLifecycle(Lot_ID="Some Value", test_csv=test_data_file)
+            lifecycle_instance.save()
+        
+        uploaded_file_path = input_csv_instance.test_csv.path
         test_data = pd.read_csv(uploaded_file_path)
-        print(test_data.info())
         
         # 첫 번째 행에서 마지막으로 값이 있는 컬럼의 이름을 찾기 (멘토님이랑 상의 : 변경 예정)
         first_row = test_data.iloc[0].dropna()
@@ -221,28 +349,38 @@ def simulation(request):
         test_data_json = test_data_temp.to_json(orient='records')
         
         prediction = ensemble_models(test_data)
+        print("ensemble complete")
         # 신뢰구간 계산
         min_val, max_val, mean_val = calculate_confidence_interval(prediction)
+        print("confidence interval complete")
+        # 결과를 리스트로 저장
+        confidence_interval["min"].append(min_val)
+        confidence_interval["max"].append(max_val)
+        confidence_interval["avg"].append(mean_val)
         
-        # prediction = np.random.randint(10,100,50)
-        # min_val, max_val, mean_val = calculate_confidence_interval(prediction)
-        
-        confidence_interval = {"min": min_val, "max": max_val, "mean": mean_val}
-        
-        lifecycle_instance = WLifecycle(min_value=min_val, max_value=max_val, avg_value=mean_val)
+        simulation_instance = Wsimulation(min_value=min_val, max_value=max_val, avg_value=mean_val)
+        lifecycle_instance = WLifecycle(avg_value=mean_val)
+        simulation_instance.save()
         lifecycle_instance.save()
-        
+
         prediction_csv = StringIO()
         prediction.to_csv(prediction_csv, index=False)
-        
+
         # 예측 결과를 Prediction_complete 모델에만 저장
-        prediction_complete_model = Prediction_complete(name="Prediction Result", csv_file=ContentFile(prediction_csv.getvalue().encode('utf-8'), name="complete_predictions.csv"))
-        prediction_complete_model.save()
-    return render(request, "hynix/simulation.html", {"prediction": prediction, "data_json": test_data_json, "confidence_interval": confidence_interval})
+        # prediction_complete_model = Prediction_complete(name="Prediction Result", csv_file=ContentFile(prediction_csv.getvalue().encode('utf-8'), name="complete_predictions.csv"))
+        # prediction_complete_model.save()
+        
+    return render(request, "hynix/simulation.html", {"prediction": prediction, "data_json": test_data_json, "confidence_interval": confidence_interval, "last_column": last_filled_column_name})
 
 def lifecycle(request):
+    predictions = []
+    latest_id = None
+    avg_delta = None
+    latest_real_input_time = None
+    
     # prediction 가져오기
     try:
+        # 가장 최근에 생성된 Prediction_complete 데이터를 가져옴
         latest_prediction = Prediction_complete.objects.latest('id')  # 'id'는 Django의 기본 제공 필드로, 최신 데이터를 가져오는 데 사용됩니다.
         prediction_file = latest_prediction.csv_file.path
         
@@ -250,60 +388,70 @@ def lifecycle(request):
         prediction_data = pd.read_csv(prediction_file)
         
         # 필요한 컬럼을 추출하고 딕셔너리 리스트로 변환
-        data = prediction_data[["Date", "ID", "prediction"]].to_dict(orient='records')
+        data = prediction_data[["ID", "prediction"]].to_dict(orient='records')
         
     except (Prediction_complete.DoesNotExist, FileNotFoundError, pd.errors.EmptyDataError, pd.errors.ParserError):
         # 오류 발생 시, 기본 데이터를 생성해 data 리스트에 저장
         data = []
         for i in range(1, 101):
-            datetime_value = "2023-08-23 00:00:00"
+            # datetime_value = "2023-08-23 00:00:00"
             lot_id = 1000 + i
             pred = 70 + i
-            real = 70
-            data.append({"Date": datetime_value, "ID": lot_id, "prediction": pred, "real": real})
-
-
-
+            real = None
+            data.append({"ID": lot_id, "prediction": pred, "real": real}) # "Date": datetime_value
+ 
     if request.method == "POST":
+        uploaded_file = request.FILES.get('test_csv')  # 사용자가 업로드한 test_csv 파일 받아오기
+        avg_val = request.POST.get('avg_value')  # 사용자가 입력한 평균값 받아오기
+        real_values = request.POST.getlist('real')  # 'real'이라는 키로 전송된 여러 개의 데이터를 리스트로 받아옵니다.
 
-        # 사용자가 입력한 'IDReal' 데이터를 JSON 형태로 받아오기
-        updated_data_json = request.POST['IDreal'] 
-        # JSON 데이터를 딕셔너리로 변환
-        updated_data_dict = json.loads(updated_data_json)
-        print(updated_data_dict)
+        # 각 'real' 값을 WLifecycle 테이블에 저장
+        for id_, real_value in zip(request.POST.getlist('ID'), request.POST.getlist('real')):
+            instance = WLifecycle(test_csv=uploaded_file, Lot_ID=id_, avg_value=float(avg_val), real=float(real_value))
+            instance.save()
+        
         # POST 요청이 오는 경우에만 prediction_data를 다시 가져와야 함
         # prediction_data 초기화
         try:
-            latest_prediction = Prediction_complete.objects.latest('id')
+            latest_prediction = Prediction_complete.objects.latest('ID')
             prediction_file = latest_prediction.csv_file.path
             prediction_data = pd.read_csv(prediction_file)
         except (Prediction_complete.DoesNotExist, FileNotFoundError, pd.errors.EmptyDataError, pd.errors.ParserError):
             # 오류 발생 시, 기본 데이터를 생성해 prediction_data를 초기화
             prediction_data = pd.DataFrame()
             prediction_data = prediction_data.append(data, ignore_index=True)
-        
-        for item in updated_data_dict:
-            id_value = item["ID"]
-            real_value = item['real']   
-            # prediction_data에서 'ID' 값이 일치하는 행을 찾아서 'real' 값을 대체
-            prediction_data.loc[prediction_data['ID'] == id_value, 'real'] = real_value
+            latest_prediction = Prediction_complete()
+       
+        # 'updated_data'를 정의: 사용자가 입력한 'real' 데이터를 리스트 형태로 가져오기
+        updated_data = [{"ID": int(id_), "real": float(value)} for id_, value in zip(request.POST.getlist('ID'), request.POST.getlist('real'))]
+
+        # 'real' 컬럼 데이터 추가
+        for item in updated_data:
+            prediction_data.loc[prediction_data['ID'] == item['ID'], 'real'] = item['real']
         
         # 델타 값 계산
         prediction_data['delta'] = (prediction_data['prediction'] - prediction_data['real']).abs()
         
         # 델타 값의 평균 계산
         avg_delta = prediction_data['delta'].mean()
+        latest_prediction.avg_delta = avg_delta
         prediction_data['avg_del'] = avg_delta
-        Date = prediction_data['Date'][0] 
-        print(avg_delta)
-        print(Date)
         
-        # 데이터를 DB에 다시 저장
-        context = {"avg_delta": avg_delta, "Date": Date}
-        return render(request, "hynix/lifecycle.html", context)
-
-    # POST 요청이 아닌 경우에도 데이터를 전달할 context 생성
-    context = {"data": data}
-
-    # 데이터와 함께 lifecycle.html 페이지를 렌더링해 화면에 보여줌
-    return render(request, "hynix/lifecycle.html", context)
+        # 데이터를 Prediction_complete 테이블에 다시 저장
+        prediction_csv = StringIO()
+        prediction_data.to_csv(prediction_csv, index=False)
+        latest_prediction.csv_file = ContentFile(prediction_csv.getvalue().encode('utf-8'), name="updated_predictions.csv")
+        latest_prediction.save()
+        
+        # WLifecycle 테이블에서 마지막 행의 데이터 가져오기
+        latest_wlifecycle = WLifecycle.objects.latest('real_input_time')
+        latest_real_input_time = latest_wlifecycle.real_input_time
+        latest_id = latest_wlifecycle.Lot_ID
+        predictions = prediction_data['prediction'].tolist()
+        
+    return render(request, "hynix/lifecycle.html", {
+        "avg_delta": avg_delta,
+        "Date": latest_real_input_time,
+        "ID": latest_id,
+        "Pred": predictions
+    })

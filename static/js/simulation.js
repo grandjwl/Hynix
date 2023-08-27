@@ -19,7 +19,7 @@ function ShowChart() {
   for (var i=0; i<maxkey.length; i++) {
     pred_max.push(minmax.max[i]);
     pred_min.push(minmax.min[i]);
-    pred_avg.push(minmax.mean[i]);
+    pred_avg.push(minmax.avg[i]);
   }
 
   // option = {
