@@ -36,6 +36,8 @@
                   <label>
                     공정 완료
                     <input type="radio" name="isFull" id="isFull" value="1">
+                  </label>
+                  <label>
                     공정 미완료
                     <input type="radio" name="isFull" id="isFull" value="0">
                   </label>
@@ -69,7 +71,7 @@
       </div>
 
       <!-- dashboard -->
-      <div id="chart" style="width:1220px;height:500px;display:none;"></div>
+      <canvas id="myChart" style="display:none;"></canvas>
     </div>
   </div>
 </div>
@@ -77,6 +79,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'js/echarts.js.map' %}"></script>
 <script src="{% static 'js/echarts.js' %}"></script>
 <script src="{% static 'js/echarts.min.js' %}"></script>

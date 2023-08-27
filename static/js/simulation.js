@@ -1,15 +1,14 @@
 // 대시보드 showing 함수
 function ShowChart() {
+
   const table = document.querySelector(".table-responsive"),
     btn2 = table.querySelector(".pred");
-  var chartDom = document.getElementById('chart');
+  var chartDom = document.getElementById('myChart');
   btn2.onclick = () => {
     btn2.style.display = "none";
     chartDom.style.display = "block";
   };
 
-  var myChart = echarts.init(chartDom);
-  var option;
   var process = ["x1","x2","x3","x4","x5","x6","x7","x8","x9","x10"];
   var pred_max = new Array();
   var pred_min = new Array();
@@ -22,183 +21,46 @@ function ShowChart() {
     pred_avg.push(minmax.avg[i]);
   }
 
-  // option = {
-  //   title: {
-  //     text: 'Accumulated Waterfall Chart'
-  //   },
-  //   tooltip: {
-  //     trigger: 'axis',
-  //     axisPointer: {
-  //       type: 'shadow'
-  //     },
-  //     formatter: function (params) {
-  //       let tar;
-  //       if (params[1] && params[1].value !== '-') {
-  //         tar = params[1];
-  //       } else {
-  //         tar = params[2];
-  //       }
-  //       return tar && tar.name + '<br/>' + tar.seriesName + ' : ' + tar.value;
-  //     }
-  //   },
-  //   legend: {
-  //     data: ['Max-Min']
-  //   },
-  //   grid: {
-  //     left: '3%',
-  //     right: '4%',
-  //     bottom: '3%',
-  //     containLabel: true
-  //   },
-  //   xAxis: {
-  //     type: 'category',
-  //     data: process,
-  //   },
-  //   yAxis: {
-  //     type: 'value',
-  //     min: 0,
-  //     max: 100
-  //   },
-  //   series: [
-  //     {
-  //       name: 'Min',
-  //       type: 'bar',
-  //       stack: 'Total',
-  //       label: {
-  //         show: true,
-  //         position: 'insideTop'
-  //       },
-  //       silent: true,
-  //       itemStyle: {
-  //         borderColor: 'transparent',
-  //         color: 'transparent'
-  //       },
-  //       emphasis: {
-  //         itemStyle: {
-  //           borderColor: 'transparent',
-  //           color: 'transparent'
-  //         }
-  //       },
-  //       data: pred_min
-  //     },
-      
-  //     {
-  //       name: 'Avg',
-  //       type: 'bar',
-  //       stack: 'Total',
-  //       label: {
-  //         show: true,
-  //         position: 'inside'
-  //       },
-  //       data: pred_avg
-  //     },
-  //     {
-  //       name: 'Max',
-  //       type: 'bar',
-  //       stack: 'Total',
-  //       label: {
-  //         show: true,
-  //         position: 'insideBottom',
-  //       },
-  //       silent: true,
-  //       itemStyle: {
-  //         borderColor: 'transparent',
-  //         color: 'transparent'
-  //       },
-  //       emphasis: {
-  //         itemStyle: {
-  //           borderColor: 'transparent',
-  //           color: 'transparent'
-  //         }
-  //       },
-  //       data: pred_max
-  //     }
-  //   ]
-  // };
-
-  option = {
-    title: [
-      {
-        text: 'Michelson-Morley Experiment',
-        left: 'center'
-      },
-      {
-        text: 'upper: Q3 + 1.5 * IQR \nlower: Q1 - 1.5 * IQR',
-        borderColor: '#999',
-        borderWidth: 1,
-        textStyle: {
-          fontWeight: 'normal',
-          fontSize: 14,
-          lineHeight: 20
+  var ctx = document.getElementById('myChart').getContext('2d');
+  var chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['Label 1', 'Label 2', 'Label 3', 'Label 4', 'Label 5'],
+      datasets: [
+        {
+          label: 'Min Values',
+          data: pred_min,
+          borderColor: 'red',
+          fill: false
         },
-        left: '10%',
-        top: '90%'
-      }
-    ],
-    dataset: [
-      {
-        // prettier-ignore
-        source: [
-                  pred_max,
-                  pred_min
-              ]
-      },
-      {
-        transform: {
-          type: 'boxplot',
-          config: { itemNameFormatter: 'expr {value}' }
+        {
+          label: 'Max Values',
+          data: pred_max,
+          borderColor: 'blue',
+          fill: false
+        },
+        {
+          label: 'Avg Values',
+          data: pred_avg,
+          backgroundColor: 'green', // 점의 배경색
+          borderColor: 'green', // 점의 테두리 색
+          pointRadius: 2, // 점의 반지름
+          pointHoverRadius: 3, // 호버 시의 점의 반지름
+          pointStyle: 'circle', // 점의 모양
+          showLine: false, // 선 그래프 표시하지 않음
+          fill: false
         }
-      },
-      {
-        fromDatasetIndex: 1,
-        fromTransformResult: 1
-      }
-    ],
-    tooltip: {
-      trigger: 'item',
-      axisPointer: {
-        type: 'shadow'
-      }
+      ]
     },
-    grid: {
-      left: '10%',
-      right: '10%',
-      bottom: '15%'
-    },
-    xAxis: {
-      type: 'category',
-      boundaryGap: true,
-      nameGap: 30,
-      splitArea: {
-        show: false
-      },
-      splitLine: {
-        show: false
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
       }
-    },
-    yAxis: {
-      type: 'value',
-      name: 'km/s minus 299,000',
-      splitArea: {
-        show: true
-      }
-    },
-    series: [
-      {
-        name: 'boxplot',
-        type: 'boxplot',
-        datasetIndex: 1
-      },
-      {
-        name: 'outlier',
-        type: 'scatter',
-        datasetIndex: 2
-      }
-    ]
-  };
-
-  option && myChart.setOption(option);
-};
+    }
+  });
+}
 
 // file upload form
 function UploadFile() {

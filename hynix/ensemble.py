@@ -1,3 +1,5 @@
+from .models import PreprocessedCSV, Prediction_complete, WLifecycle, Wsimulation
+from django.db import models as dj_models
 import pickle
 import pandas as pd
 import numpy as np
@@ -12,6 +14,8 @@ from torch.utils.data import Dataset, DataLoader, TensorDataset
 from scipy import stats
 from sklearn.preprocessing import StandardScaler
 from hynix.model_class import LSTM, LSTM_model
+from pycaret.regression import *
+from sklearn.utils import resample
 import warnings
 warnings.filterwarnings(action='ignore')
 
@@ -27,7 +31,6 @@ random.seed(1234)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # 동연
-
 class DataPreprocessor:
     def __init__(self):
         self.deleted_columns = None
@@ -185,7 +188,6 @@ class DataPreprocessor:
         return data_preprocessed_scaled
 
 # 고운
-
 class PreprocessAndPredict:
     class RealTestDataset(Dataset):
         def __init__(self, df):
@@ -420,16 +422,16 @@ class Preprocessor :
         datatmp = df.columns.to_list()[188:1454]
         
         ts_data = df.select_dtypes("datetime")
-        ts_data.reset_index(drop=True, inplace=True)
+        ts_data.reset_index(drop=True, inplace=True)  # 여기가 일단 새로운 부분 
         for idx in ts_data.index:
             ts_data.sort_values(by=idx,axis=1, inplace=True)
 
         columns = ts_data.columns
         num_columns = len(columns)
         for i in range(1, num_columns):
-            column_diff = pd.to_datetime(df.iloc[:, i]) - pd.to_datetime(ts_data.iloc[:, i-1])
+            column_diff = pd.to_datetime(ts_data.iloc[:, i]) - pd.to_datetime(ts_data.iloc[:, i-1])  # 앞에 df를 ts_data로 바꿈 
             column_diff_hours = column_diff.dt.total_seconds() / 3600
-            ts_data.iloc[:, i] = column_diff_hours
+            ts_data.iloc[:, i] = column_diff_hours  # 여기서 문제가 됨!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         for i in range(len(ts_data.columns)-1):
             ts_data.iloc[:, i] = ts_data.iloc[:, i+1]
@@ -597,4 +599,111 @@ class Preprocessor :
         Rtest = self.scale_preprocessing_Rtest(Rtest)
         print("finish preprocessing")
         return Rtest
+
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+# 50번의 시뮬레이션 데이터 생성
+def MakeSimulationData(test, filename):
+    prediction_obj = PreprocessedCSV.objects.filter(data__contains=filename).first()
+
+    if prediction_obj:
+        file_path = prediction_obj.data.path
+        
+        # 파일을 직접 Pandas 데이터프레임으로 읽기
+        train_df = pd.read_csv(file_path)
+
+    # test2의 행을 50번 복제
+    test = pd.concat([test]*50).reset_index(drop=True)
+
+    # 각 행에 대해 처리
+    for i in range(len(test)):
+        # 해당 행에서 마지막으로 값이 있는 컬럼 찾기
+        last_valid_col = test.iloc[i].last_valid_index()
+
+        # last_valid_col 다음 컬럼부터 값을 채우기
+        for col in test.columns[test.columns.get_loc(last_valid_col)+1:]:
+            # 해당 컬럼에서 랜덤한 값을 선택
+            random_value = random.choice(train_df[col].tolist())
+            test[col].iloc[i] = random_value
+    return test
+
+# 동연
+def model1_prediction(test_data):
+    test_data = MakeSimulationData(test_data, 'prepro_kdy.csv')
+    dp = DataPreprocessor()
+    deleted_columns, null_columns, to_drop_all = dp.load_pickles()
+    final_test = dp.preprocessing_realtest(test_data)
+    scaled_final_test = dp.scale_data_without_target(final_test)
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        
+    model = torch.load('hynix/ensemble/kdy/final_best_model.pt')
+    model.eval()
+
+    test_tensor = torch.tensor(scaled_final_test.values).float().to(device)
+    test_tensor = test_tensor.view(-1, 1, 1285)
+
+    with torch.no_grad():
+        predictions = model(test_tensor)
+
+    predictions_test = predictions.cpu().numpy()
+    predictions_test = predictions_test * 100
+
+    pred = pd.DataFrame(predictions_test) # 833 rows × 1 columns
+    return pred
+
+# 고운
+def model2_prediction(test_data):
+    test_data = test_data.iloc[:, 1:]
+    test_data = MakeSimulationData(test_data, 'prepro_cgw.csv')
+    print(test_data)
+    pp = PreprocessAndPredict()
+    pred = pp.run(test_data)
+    pred = pd.DataFrame(pred.detach().numpy())
+    return pred
+
+# 정우
+def model3_prediction(test_data):
+    test_data = test_data.iloc[:, 1:]
+    test_data = MakeSimulationData(test_data, 'prepro_ljw.csv')
+    print(test_data)
+    # default_path = 'hynix/ensemble/ljw/'
+    # with open(default_path + "Preprocessor", "rb") as f:
+    #     preprocess = pickle.load(f)
+    ps = Preprocessor()
+    Rtest = ps.preprocessing_Rtest(test_data)
+    Rtest= Rtest.reset_index(drop=True)
+
+    best_model = load_model('hynix/ensemble/ljw/ML_best_model')
+    pred = predict_model(best_model, data=Rtest)['prediction_label']*100
+    pred = pd.DataFrame(pred)
+    return pred
+
+
+def ensemble_models(test_data):
+    mse_values = [10.73052, 11.8428, 1.9966] # 동연, 고운, 정우
+    weights = [1/mse for mse in mse_values]
+    normalized_weights = [weight/sum(weights) for weight in weights]
     
+    # pred1 = model1_prediction(test_data)
+    pred2 = model2_prediction(test_data)
+    # pred3 = model3_prediction(test_data)
+    print(pred2)
+    
+    # pred1 = pred1.reset_index(drop=True)
+    # pred2 = pred2.reset_index(drop=True)
+
+    # ensemble_module = pred1.iloc[:, 0]*normalized_weights[0] + pred2.iloc[:, 0]*normalized_weights[1] + pred3.iloc[:, 0]*normalized_weights[2]
+    predictions = pred2.iloc[:, 0]*normalized_weights[1]
+
+    return predictions
+
+def calculate_confidence_interval(predictions, alpha=0.9):
+    # Bootstrap re-sampling을 사용하여 신뢰구간 계산
+    bootstrapped_samples = [resample(predictions) for _ in range(1000)]
+    min_val = np.percentile(bootstrapped_samples, (1-alpha)/2*100)
+    max_val = np.percentile(bootstrapped_samples, alpha+((1-alpha)/2)*100)
+    mean_val = predictions.mean()
+
+    return min_val, max_val, mean_val
