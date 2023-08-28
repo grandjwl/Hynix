@@ -1,0 +1,31 @@
+[동연]
+10.74511
+
+[고운]
+11.8428
+
+[정우]
+1.9966
+---------------------------------------------
+기본적으로 MSE (Mean Squared Error)가 낮은 모델일수록 더 좋은 성능을 보이므로, 이 모델에 더 높은 가중치를 부여하는 것이 합리적일 것입니다. 하지만 가중치를 어떻게 결정할지는 다양한 방법이 있습니다.
+
+가장 단순한 방법은 각 모델의 MSE에 역수를 취해 가중치로 사용하는 것입니다. 이렇게 하면 MSE가 낮은 모델에 높은 가중치가 부여
+
+Wi = 1 / MSEi
+정규화된 Wi = Wi / 3개합(Wj)
+
+최종 예측값 = 3개합(정규화된 Wi * 예측값i)
+--------------------------------------------
+# Given MSE values for three models
+mse_values = [10.74511, 11.8428, 1.9966]
+
+# Calculate the weights based on the inverse of the MSE
+weights = [1/mse for mse in mse_values]
+
+# Normalize the weights so that they sum up to 1
+normalized_weights = [weight/sum(weights) for weight in weights]
+
+normalized_weights
+=>
+[0.1371927386266557, 0.12447656531771747, 0.7383306960556268]
+(            동연               고운                     정우                  )
