@@ -9,17 +9,28 @@ warnings.filterwarnings(action='ignore')
 import pandas as pd
 from hynix.model_class import LSTM, LSTM_model
 from hynix.ensemble import ensemble_models, calculate_confidence_interval
+import json
 
 def main(request):
     return render(request, 'hynix/main.html',{"contents":""})
 
 def simulation(request):
     prediction = None
-    confidence_interval = {"min": [], "max": [], "avg": []}
+    confidence_interval = {"min": [], "max": [], "avg": [], "process": []}
     test_data_json = '{}'  
     test_data = None
     last_filled_column_name = None
-
+    all_last_filled_columns = None
+    
+    # Wsimulation 테이블에서 모든 [신뢰구간] 값 가져옴
+    all_simulations = Wsimulation.objects.all()
+    
+    for sim in all_simulations: # [신뢰구간] 값을 리스트로 추가
+        confidence_interval["min"].append(sim.min_value)
+        confidence_interval["max"].append(sim.max_value)
+        confidence_interval["avg"].append(sim.avg_value)
+        confidence_interval["process"].append(sim.last_filled_column_name)
+    
     if request.method == "POST" and 'test_data' in request.FILES:
         test_data_file = request.FILES['test_data']
         isFull = int(request.POST["isFull"])
@@ -27,47 +38,57 @@ def simulation(request):
         input_csv_instance = Wsimulation(test_csv=test_data_file)
         input_csv_instance.save()
         
-        # is_full_data 값이 True인 경우 WLifecycle 테이블에도 저장
-        if isFull:
-            lifecycle_instance = WLifecycle(Lot_ID="Some Value", test_csv=test_data_file)
-            lifecycle_instance.save()
-        
         uploaded_file_path = input_csv_instance.test_csv.path
         test_data = pd.read_csv(uploaded_file_path)
+        
+        lot_id_value = test_data['ID'].iloc[0] if 'ID' in test_data.columns else None
+        
+        # is_full_data 값이 True인 경우 WLifecycle 테이블에도 저장
+        if isFull == 1 and lot_id_value != None:
+            lifecycle_instance = WLifecycle(Lot_ID=lot_id_value, test_csv=test_data_file)
+            lifecycle_instance.save()
         
         # 첫 번째 행에서 마지막으로 값이 있는 컬럼의 이름을 찾기 (멘토님이랑 상의 : 변경 예정)
         first_row = test_data.iloc[0].dropna()
         if not first_row.empty:
             last_filled_column_name = first_row.index[-1]
-        
         # test_data를 JSON 형태로 변환
         test_data_temp = test_data
         test_data_temp = test_data_temp.drop(columns=['Unnamed: 0'], errors='ignore')
         test_data_json = test_data_temp.to_json(orient='records')
         
-        prediction = ensemble_models(test_data)
+        prediction_df = ensemble_models(test_data)
+        
+        prediction = prediction_df.values
         print("ensemble complete")
+        
         # 신뢰구간 계산
         min_val, max_val, mean_val = calculate_confidence_interval(prediction)
         print("confidence interval complete")
-        # 결과를 리스트로 저장
-        confidence_interval["min"].append(min_val)
-        confidence_interval["max"].append(max_val)
-        confidence_interval["avg"].append(mean_val)
         
-        simulation_instance = Wsimulation(min_value=min_val, max_value=max_val, avg_value=mean_val)
+        # 결과를 리스트로 저장
+        simulation_instance = Wsimulation(min_value=min_val, max_value=max_val, avg_value=mean_val, last_filled_column_name=last_filled_column_name)
         lifecycle_instance = WLifecycle(avg_value=mean_val)
         simulation_instance.save()
         lifecycle_instance.save()
 
         prediction_csv = StringIO()
-        prediction.to_csv(prediction_csv, index=False)
+        prediction_df.to_csv(prediction_csv, index=False)
 
         # 예측 결과를 Prediction_complete 모델에만 저장
-        # prediction_complete_model = Prediction_complete(name="Prediction Result", csv_file=ContentFile(prediction_csv.getvalue().encode('utf-8'), name="complete_predictions.csv"))
-        # prediction_complete_model.save()
+        prediction_complete_model = Prediction_complete(name="Prediction Result", csv_file=ContentFile(prediction_csv.getvalue().encode('utf-8'), name="complete_predictions.csv"))
+        prediction_complete_model.save()
         
-    return render(request, "hynix/simulation.html", {"prediction": prediction, "data_json": test_data_json, "confidence_interval": confidence_interval, "last_column": last_filled_column_name})
+    # Wsimulation 테이블에서 모든 [신뢰구간] 값 가져옴
+    all_simulations = Wsimulation.objects.all()
+    
+    for sim in all_simulations: # [신뢰구간] 값을 리스트로 추가
+        confidence_interval["min"].append(sim.min_value)
+        confidence_interval["max"].append(sim.max_value)
+        confidence_interval["avg"].append(sim.avg_value)
+        confidence_interval["process"].append(sim.last_filled_column_name)
+    confidence_interval = json.dumps(confidence_interval)
+    return render(request, "hynix/simulation.html", {"prediction": prediction, "data_json": test_data_json, "confidence_interval": confidence_interval})
 
 def lifecycle(request):
     predictions = []

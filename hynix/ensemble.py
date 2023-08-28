@@ -83,7 +83,7 @@ class DataPreprocessor:
                 diff =  time1 - time2
                 col.append(round(diff.seconds/(60*60),2))
             df[ts_data.columns[idx]+"-"+ts_data.columns[idx-1]] = col
-        with open('hynix/ensemble/kdy/train_q_train.pkl', 'wb') as f:
+        with open('models/dy/train_q_train.pkl', 'wb') as f:
             pickle.dump(df, f)
         return df
 
@@ -91,7 +91,7 @@ class DataPreprocessor:
         empty_columns = final.columns[final.isnull().all()]
         final = final.drop(empty_columns, axis=1)
         self.deleted_columns = list(empty_columns)
-        with open('hynix/ensemble/kdy/deleted_columns.pkl', 'wb') as f:
+        with open('models/dy/deleted_columns.pkl', 'wb') as f:
             pickle.dump(self.deleted_columns, f)
         return final, self.deleted_columns
 
@@ -101,7 +101,7 @@ class DataPreprocessor:
         total_rows = final.shape[0]
         self.null_columns = null_counts[null_counts / total_rows >= null_threshold].index.tolist()
         final = final.drop(self.null_columns, axis=1)
-        with open('hynix/ensemble/kdy/null_columns.pkl', 'wb') as f:
+        with open('models/dy/null_columns.pkl', 'wb') as f:
             pickle.dump(self.null_columns, f)    
         return final, self.null_columns
     
@@ -119,7 +119,7 @@ class DataPreprocessor:
         to_drop_all = [column for column in upper_all.columns if any(upper_all[column] > 0.8)]
         self.to_drop_all = [column for column in upper_all.columns if any(upper_all[column] > 0.8)]
         final = final.drop(self.to_drop_all, axis=1)
-        with open('hynix/ensemble/kdy/to_drop_all.pkl', 'wb') as f:
+        with open('models/dy/to_drop_all.pkl', 'wb') as f:
             pickle.dump(self.to_drop_all, f) 
         return final, self.to_drop_all
     
@@ -133,8 +133,13 @@ class DataPreprocessor:
         final, to_drop_all = self.drop_corrfeature(final)
         final = final.sort_index()
         final =  final.select_dtypes(include=['float64'])
+
         final = pd.concat([final,train_q],axis=1)
-        return final, to_drop_all, deleted_columns, null_columns
+        trainfinal_columns = final.columns.tolist()
+        trainfinal_columns = [col for col in trainfinal_columns if col not in ["Y", "ID"]]
+        with open('models/dy/trainfinal_columns.pkl', 'wb') as f:
+            pickle.dump(trainfinal_columns, f)
+        return final, to_drop_all, deleted_columns, null_columns, trainfinal_columns
     
     def preprocessing_test(self, data):
         a = self.sort_time(data)
@@ -150,26 +155,29 @@ class DataPreprocessor:
         return final
     
     def load_pickles(self):
-        with open('hynix/ensemble/kdy/deleted_columns.pkl', "rb") as file:
+        with open("models/dy/deleted_columns.pkl", "rb") as file:
             deleted_columns = pickle.load(file)
-        with open('hynix/ensemble/kdy/null_columns.pkl', "rb") as file:
+        with open("models/dy/null_columns.pkl", "rb") as file:
             null_columns = pickle.load(file)
-        with open('hynix/ensemble/kdy/to_drop_all.pkl', "rb") as file:
+        with open("models/dy/to_drop_all.pkl", "rb") as file:
             to_drop_all = pickle.load(file)
-        return deleted_columns, null_columns, to_drop_all
+        with open("models/dy/train_q_train.pkl", "rb") as file:
+            train_q_train = pickle.load(file)
+        with open('models/dy/trainfinal_columns.pkl', 'rb') as file:
+            trainfinal_columns = pickle.load(file)
+        return deleted_columns, null_columns, to_drop_all, trainfinal_columns
     
     def preprocessing_realtest(self, data):
-        deleted_columns, null_columns, to_drop_all = DataPreprocessor.load_pickles(self)
+        deleted_columns, null_columns, to_drop_all, trainfinal_columns = DataPreprocessor.load_pickles(self)
         a = self.sort_time(data)
-        train_ts_data = a.select_dtypes("datetime").astype("str")
-        train_q = self.Qtime(a,train_ts_data)
-        final = data.drop(deleted_columns, axis=1)
-        final = final.drop(null_columns, axis=1)
-        final = self.fillna_null(final)
-        final = final.drop(to_drop_all, axis=1)
+        test_ts_data = a.select_dtypes("datetime").astype("str")
+        test_q = self.Qtime(a,test_ts_data)
+
+        final = self.fillna_null(data)
         final = final.sort_index()
-        final =  final.select_dtypes(include=['float64'])
-        final = pd.concat([final,train_q],axis=1)
+        final = pd.concat([final,test_q],axis=1)
+        print(final.columns.to_list())
+        final = final[trainfinal_columns] # 여기가 오류 해결 부분
         return final
     
     def scale_data(self, temp):
@@ -271,8 +279,6 @@ class PreprocessAndPredict:
                     idx += 1
             except:
                 break
-        # drop_col = data.columns[188:1454].to_list()[-1]
-        # data.drop(columns=drop_col,inplace=True)
         data.drop(columns="x197",inplace=True)
         return data
 
@@ -337,7 +343,7 @@ class PreprocessAndPredict:
         train_sc = std.transform(train)
         train = pd.DataFrame(data=train_sc, index=train.index, columns=train.columns)
 
-        pickle.dump(std, open('hynix/ensemble/cgw/std_scaler.pkl', 'wb'))
+        pickle.dump(std, open('models/gw/std_scaler.pkl', 'wb'))
         
         corr_df = train.apply(lambda x: x.corr(y_train))
         corr_df = corr_df.apply(lambda x: round(x ,2))
@@ -348,7 +354,7 @@ class PreprocessAndPredict:
         train_options["column_names"] = train.columns.to_list()
         train_options["column_means"] = list(train.mean().values)
 
-        pickle.dump(train_options, open('hynix/ensemble/cgw/train_options.pkl', 'wb'))
+        pickle.dump(train_options, open('models/gw/train_options.pkl', 'wb'))
         
         y_train /= 100
         train = pd.merge(train, y_train,how="left",on="ID") 
@@ -364,9 +370,11 @@ class PreprocessAndPredict:
         ts_test = test.select_dtypes("datetime").astype("str")
         test_q = self.Qtime(test, ts_test)
         test = self.insert_Qtime(test, test_q)
+        print(test.info())
+        print(len(test.columns))
         
-        train_options = pickle.load(open('hynix/ensemble/cgw/train_options.pkl', 'rb'))
-        scaler = pickle.load(open('hynix/ensemble/cgw/std_scaler.pkl', 'rb'))
+        train_options = pickle.load(open('models/gw/train_options.pkl', 'rb'))
+        scaler = pickle.load(open('models/gw/std_scaler.pkl', 'rb'))
         
         test = test[train_options["before_scale_columns"]]
         
@@ -391,7 +399,7 @@ class PreprocessAndPredict:
         test_loader = DataLoader(test, batch_size=833, shuffle=False, drop_last=False)
         device = "cuda" if torch.cuda.is_available() else "cpu"
         model = LSTM_model(391,256,1,3)
-        model.load_state_dict(torch.load('models\gw\lstm_best_model_sgd_cosine.pt'))
+        model.load_state_dict(torch.load('models/gw/lstm_best_model_sgd_cosine.pt'))
         print("load model complete")
         outputs = []
         for data in test_loader:
@@ -408,7 +416,7 @@ class PreprocessAndPredict:
 
 # 정우
 class Preprocessor :
-    default_path = 'hynix/ensemble/ljw'
+    default_path = 'models/jw'
 
     def __init__(self):
         pass
@@ -605,13 +613,12 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # 50번의 시뮬레이션 데이터 생성
 def MakeSimulationData(test, filename):
-    prediction_obj = PreprocessedCSV.objects.filter(data__contains=filename).first()
-
-    if prediction_obj:
-        file_path = prediction_obj.data.path
+    csv_obj = PreprocessedCSV.objects.filter(data__contains=filename).first()
+    if csv_obj:
+        file_path = csv_obj.data.path
         
         # 파일을 직접 Pandas 데이터프레임으로 읽기
-        train_df = pd.read_csv(file_path)
+        org_traindata_df = pd.read_csv(file_path)
 
     # test2의 행을 50번 복제
     test = pd.concat([test]*50).reset_index(drop=True)
@@ -623,22 +630,27 @@ def MakeSimulationData(test, filename):
 
         # last_valid_col 다음 컬럼부터 값을 채우기
         for col in test.columns[test.columns.get_loc(last_valid_col)+1:]:
-            # 해당 컬럼에서 랜덤한 값을 선택
-            random_value = random.choice(train_df[col].tolist())
-            test[col].iloc[i] = random_value
+            non_null_values = org_traindata_df[col].dropna().tolist()
+            if non_null_values:
+                random_value = random.choice(non_null_values)
+                test[col].iloc[i] = random_value
+            else:
+                continue
     return test
 
 # 동연
 def model1_prediction(test_data):
-    test_data = MakeSimulationData(test_data, 'prepro_kdy.csv')
+    test_data = MakeSimulationData(test_data, 'trainset.csv')
     dp = DataPreprocessor()
-    deleted_columns, null_columns, to_drop_all = dp.load_pickles()
+    # deleted_columns, null_columns, to_drop_all = dp.load_pickles()
     final_test = dp.preprocessing_realtest(test_data)
     scaled_final_test = dp.scale_data_without_target(final_test)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        
-    model = torch.load('hynix/ensemble/kdy/final_best_model.pt')
+    
+    model = LSTM(input_size=1285, hidden_size=150, num_layers=2, output_size=1, dropout_rate=0.5)
+    model.load_state_dict(torch.load('models/dy/3. final_best_model.pt'))
+    model.to(device)
     model.eval()
 
     test_tensor = torch.tensor(scaled_final_test.values).float().to(device)
@@ -656,8 +668,7 @@ def model1_prediction(test_data):
 # 고운
 def model2_prediction(test_data):
     test_data = test_data.iloc[:, 1:]
-    test_data = MakeSimulationData(test_data, 'prepro_cgw.csv')
-    print(test_data)
+    test_data = MakeSimulationData(test_data, 'trainset.csv')
     pp = PreprocessAndPredict()
     pred = pp.run(test_data)
     pred = pd.DataFrame(pred.detach().numpy())
@@ -666,8 +677,7 @@ def model2_prediction(test_data):
 # 정우
 def model3_prediction(test_data):
     test_data = test_data.iloc[:, 1:]
-    test_data = MakeSimulationData(test_data, 'prepro_ljw.csv')
-    print(test_data)
+    test_data = MakeSimulationData(test_data, 'trainset.csv')
     # default_path = 'hynix/ensemble/ljw/'
     # with open(default_path + "Preprocessor", "rb") as f:
     #     preprocess = pickle.load(f)
@@ -675,7 +685,7 @@ def model3_prediction(test_data):
     Rtest = ps.preprocessing_Rtest(test_data)
     Rtest= Rtest.reset_index(drop=True)
 
-    best_model = load_model('hynix/ensemble/ljw/ML_best_model')
+    best_model = load_model('models/jw/ML_best_model')
     pred = predict_model(best_model, data=Rtest)['prediction_label']*100
     pred = pd.DataFrame(pred)
     return pred
@@ -686,17 +696,15 @@ def ensemble_models(test_data):
     weights = [1/mse for mse in mse_values]
     normalized_weights = [weight/sum(weights) for weight in weights]
     
-    # pred1 = model1_prediction(test_data)
-    pred2 = model2_prediction(test_data)
-    # pred3 = model3_prediction(test_data)
-    print(pred2)
+    # pred1 = model1_prediction(test_data) #동연
+    # pred2 = model2_prediction(test_data) #고운
+    pred3 = model3_prediction(test_data) #정우
     
     # pred1 = pred1.reset_index(drop=True)
     # pred2 = pred2.reset_index(drop=True)
 
-    # ensemble_module = pred1.iloc[:, 0]*normalized_weights[0] + pred2.iloc[:, 0]*normalized_weights[1] + pred3.iloc[:, 0]*normalized_weights[2]
-    predictions = pred2.iloc[:, 0]*normalized_weights[1]
-
+    predictions = pred3.iloc[:, 0]*normalized_weights[2]
+    # pred1.iloc[:, 0]*normalized_weights[0] + pred2.iloc[:, 0]*normalized_weights[1]
     return predictions
 
 def calculate_confidence_interval(predictions, alpha=0.9):

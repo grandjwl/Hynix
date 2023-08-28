@@ -18,6 +18,7 @@ class PreprocessedCSV(dj_models.Model):
     
 # 3. 앙상블 완료된 'test.csv+앙상블prediction' df를 csv로 저장하는 테이블
 class Prediction_complete(dj_models.Model):
+    ID = dj_models.AutoField(primary_key=True)
     name = dj_models.CharField(max_length=100)
     csv_file = dj_models.FileField(upload_to=user_directory_path)
 
@@ -27,9 +28,8 @@ class Wsimulation(dj_models.Model):
     min_value = dj_models.FloatField(null=True, blank=True)  
     max_value = dj_models.FloatField(null=True, blank=True)
     avg_value = dj_models.FloatField(null=True, blank=True)  # 평균값 저장을 위한 필드 추가
-    # last_columns = 공정의 마지막 컬럼명 저장 후 프런트로 보내기
+    last_filled_column_name = dj_models.CharField(max_length=255, null=True, blank=True)
     
-
 # 5. lifecycle 페이지에서 필요한거 저장 및 사용하는 테이블 
 class WLifecycle(dj_models.Model): # lifecycle은 맨아래 행만 필요  
     test_csv = dj_models.FileField(upload_to='input_csvs/') # 업로드된 test.csv 원본
