@@ -10,6 +10,9 @@ import pandas as pd
 from hynix.model_class import LSTM, LSTM_model
 from hynix.ensemble import ensemble_models, calculate_confidence_interval
 import json
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from datetime import datetime, timedelta
 
 def main(request):
     return render(request, 'hynix/main.html',{"contents":""})
@@ -22,15 +25,6 @@ def simulation(request):
     last_filled_column_name = None
     all_last_filled_columns = None
     
-    # Wsimulation 테이블에서 모든 [신뢰구간] 값 가져옴
-    all_simulations = Wsimulation.objects.all()
-    
-    for sim in all_simulations: # [신뢰구간] 값을 리스트로 추가
-        confidence_interval["min"].append(sim.min_value)
-        confidence_interval["max"].append(sim.max_value)
-        confidence_interval["avg"].append(sim.avg_value)
-        confidence_interval["process"].append(sim.last_filled_column_name)
-    
     if request.method == "POST" and 'test_data' in request.FILES:
         test_data_file = request.FILES['test_data']
         isFull = int(request.POST["isFull"])
@@ -39,7 +33,7 @@ def simulation(request):
         input_csv_instance.save()
         
         uploaded_file_path = input_csv_instance.test_csv.path
-        test_data = pd.read_csv(uploaded_file_path)
+        test_data = pd.read_csv(uploaded_file_path, index_col=0)
         
         lot_id_value = test_data['ID'].iloc[0] if 'ID' in test_data.columns else None
         
@@ -57,7 +51,7 @@ def simulation(request):
         test_data_temp = test_data_temp.drop(columns=['Unnamed: 0'], errors='ignore')
         test_data_json = test_data_temp.to_json(orient='records')
         
-        prediction_df = ensemble_models(test_data)
+        prediction_df = ensemble_models(test_data, isFull)
         
         prediction = prediction_df.values
         print("ensemble complete")
@@ -90,86 +84,66 @@ def simulation(request):
     confidence_interval = json.dumps(confidence_interval)
     return render(request, "hynix/simulation.html", {"prediction": prediction, "data_json": test_data_json, "confidence_interval": confidence_interval})
 
+@csrf_exempt
 def lifecycle(request):
-    predictions = []
-    latest_id = None
-    avg_delta = None
-    latest_real_input_time = None
-    
-    # prediction 가져오기
-    try:
-        # 가장 최근에 생성된 Prediction_complete 데이터를 가져옴
-        latest_prediction = Prediction_complete.objects.latest('id')  # 'id'는 Django의 기본 제공 필드로, 최신 데이터를 가져오는 데 사용됩니다.
-        prediction_file = latest_prediction.csv_file.path
-        
-        # prediction CSV 파일을 df로 읽기
-        prediction_data = pd.read_csv(prediction_file)
-        
-        # 필요한 컬럼을 추출하고 딕셔너리 리스트로 변환
-        data = prediction_data[["ID", "prediction"]].to_dict(orient='records')
-        
-    except (Prediction_complete.DoesNotExist, FileNotFoundError, pd.errors.EmptyDataError, pd.errors.ParserError):
-        # 오류 발생 시, 기본 데이터를 생성해 data 리스트에 저장
-        data = []
-        for i in range(1, 101):
-            # datetime_value = "2023-08-23 00:00:00"
-            lot_id = 1000 + i
-            pred = 70 + i
-            real = None
-            data.append({"ID": lot_id, "prediction": pred, "real": real}) # "Date": datetime_value
- 
-    if request.method == "POST":
-        uploaded_file = request.FILES.get('test_csv')  # 사용자가 업로드한 test_csv 파일 받아오기
-        avg_val = request.POST.get('avg_value')  # 사용자가 입력한 평균값 받아오기
-        real_values = request.POST.getlist('real')  # 'real'이라는 키로 전송된 여러 개의 데이터를 리스트로 받아옵니다.
+    context = {}
 
-        # 각 'real' 값을 WLifecycle 테이블에 저장
-        for id_, real_value in zip(request.POST.getlist('ID'), request.POST.getlist('real')):
-            instance = WLifecycle(test_csv=uploaded_file, Lot_ID=id_, avg_value=float(avg_val), real=float(real_value))
-            instance.save()
-        
-        # POST 요청이 오는 경우에만 prediction_data를 다시 가져와야 함
-        # prediction_data 초기화
+    def get_data_from_database():
         try:
-            latest_prediction = Prediction_complete.objects.latest('ID')
-            prediction_file = latest_prediction.csv_file.path
-            prediction_data = pd.read_csv(prediction_file)
-        except (Prediction_complete.DoesNotExist, FileNotFoundError, pd.errors.EmptyDataError, pd.errors.ParserError):
-            # 오류 발생 시, 기본 데이터를 생성해 prediction_data를 초기화
-            prediction_data = pd.DataFrame()
-            prediction_data = prediction_data.append(data, ignore_index=True)
-            latest_prediction = Prediction_complete()
-       
-        # 'updated_data'를 정의: 사용자가 입력한 'real' 데이터를 리스트 형태로 가져오기
-        updated_data = [{"ID": int(id_), "real": float(value)} for id_, value in zip(request.POST.getlist('ID'), request.POST.getlist('real'))]
+            w_lifecycle_data_list = WLifecycle.objects.all().values('Lot_ID', 'avg_value', 'real', 'real_input_time')
+            data = list(w_lifecycle_data_list)
+        except (WLifecycle.DoesNotExist, FileNotFoundError, pd.errors.EmptyDataError, pd.errors.ParserError):
+            data = []
+            start_date = datetime.strptime("2023-08-23", "%Y-%m-%d")
+            for i in range(1, 101):
+                date_value = start_date + timedelta(days=i - 1)
+                lot_id = 1000 + i
+                pred = 70 + i
+                real = 70
+                data.append({"Lot_ID": lot_id, "avg_value": pred, "real": real,"real_input_time": date_value.strftime("%Y-%m-%d")})
+        return data
 
-        # 'real' 컬럼 데이터 추가
-        for item in updated_data:
-            prediction_data.loc[prediction_data['ID'] == item['ID'], 'real'] = item['real']
+    data = get_data_from_database()
+
+    # 1. GET(표)
+    if request.method == "GET":
+        print('GET')
+        context = {"data": data}
+
+    # 2. POST(그래프)
+    elif request.method == "POST":
+        print("POST")
+        try:
+            updated_data_list = json.loads(request.POST['IDreal'])
+        except json.JSONDecodeError as e:
+            print("Failed to decode JSON data:", e)
+
+        # POST로 받은 업데이트된 데이터로 WLifecycle DB를 업데이트
+        for updated_item in updated_data_list:
+            lot_id = updated_item["Lot_ID"]
+            real_value = int(updated_item["real"])
+            lot_id = int(lot_id)
+            real_value = int(real_value)
+            real_input_time = datetime.now().strftime("%Y-%m-%d")
+            
+            # WLifecycle에서 Lot_ID 기반으로 항목을 찾아 데이터 갱신
+            try:
+                w_lifecycle_entry = WLifecycle.objects.get(Lot_ID=lot_id)
+                w_lifecycle_entry.real = real_value
+                w_lifecycle_entry.real_input_time = real_input_time
+                w_lifecycle_entry.save()
+            except WLifecycle.DoesNotExist:
+                print(f"No entry found for Lot_ID: {lot_id}")
+
+        # 처음에 가져온 데이터를 기반으로 델타 값을 계산
+        deltas = [(item["avg_value"] - item["real"]) if item["real"] is not None else None for item in data]
+        real_input_time = [item["real_input_time"] for item in data]
         
-        # 델타 값 계산
-        prediction_data['delta'] = (prediction_data['prediction'] - prediction_data['real']).abs()
-        
-        # 델타 값의 평균 계산
-        avg_delta = prediction_data['delta'].mean()
-        latest_prediction.avg_delta = avg_delta
-        prediction_data['avg_del'] = avg_delta
-        
-        # 데이터를 Prediction_complete 테이블에 다시 저장
-        prediction_csv = StringIO()
-        prediction_data.to_csv(prediction_csv, index=False)
-        latest_prediction.csv_file = ContentFile(prediction_csv.getvalue().encode('utf-8'), name="updated_predictions.csv")
-        latest_prediction.save()
-        
-        # WLifecycle 테이블에서 마지막 행의 데이터 가져오기
-        latest_wlifecycle = WLifecycle.objects.latest('real_input_time')
-        latest_real_input_time = latest_wlifecycle.real_input_time
-        latest_id = latest_wlifecycle.Lot_ID
-        predictions = prediction_data['prediction'].tolist()
-        
-    return render(request, "hynix/lifecycle.html", {
-        "avg_delta": avg_delta,
-        "Date": latest_real_input_time,
-        "ID": latest_id,
-        "Pred": predictions
-    })
+        data = {
+            "avg_delta": deltas,
+            "real_input_time": real_input_time
+        }
+        return JsonResponse(data)
+    
+    print(request.method)
+    return render(request, "hynix/lifecycle.html", context)
