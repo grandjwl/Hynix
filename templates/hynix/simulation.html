@@ -86,6 +86,7 @@
 <script type="text/javascript">
   var data = {{ data_json|safe }};
   var minmax = {{ confidence_interval|safe }};
+  console.log(minmax);
 </script>
 <script src="{% static 'js/simulation.js' %}" type="module"></script>
 {% endblock %}

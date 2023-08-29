@@ -9,23 +9,23 @@ function ShowChart() {
     chartDom.style.display = "block";
   };
 
-  // var process = new Array();
-  // var pred_max = new Array();
-  // var pred_min = new Array();
-  // var pred_avg = new Array();
+  var process = new Array();
+  var pred_max = new Array();
+  var pred_min = new Array();
+  var pred_avg = new Array();
 
-  // var maxkey = Object.keys(minmax.max);
-  // for (var i=1; i<maxkey.length; i+= 2) {
-  //   pred_max.push(minmax.max[i]);
-  //   pred_min.push(minmax.min[i]);
-  //   pred_avg.push(minmax.avg[i]);
-  //   process.push(minmax.process[i]);
-  // }
+  var maxkey = Object.keys(minmax.max);
+  for (var i=1; i<maxkey.length; i+= 2) {
+    pred_max.push(minmax.max[i]);
+    pred_min.push(minmax.min[i]);
+    pred_avg.push(minmax.avg[i]);
+    process.push(minmax.process[i]);
+  }
 
-  var process = ["x1","x2","x3","x4","x5"];
-  var pred_max = [100,97,95,93,90];
-  var pred_min = [65,68,70,75,80];
-  var pred_avg = [70,75,79,82,85];
+  // var process = ["x1","x2","x3","x4","x5"];
+  // var pred_max = [100,97,95,93,90];
+  // var pred_min = [65,68,70,75,80];
+  // var pred_avg = [70,75,79,82,85];
 
   console.log(pred_max);
   console.log(pred_min);
