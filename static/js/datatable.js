@@ -5,7 +5,7 @@ $(document).ready(function () {
         dataTable: table,
         columnDefs: [
             {
-                targets: 3
+                targets: 2
 
             }
         ]

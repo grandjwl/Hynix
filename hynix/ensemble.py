@@ -267,19 +267,15 @@ class PreprocessAndPredict:
 
                 diff =  time1 - time2
                 col.append(round(diff.seconds/(60*60),2))
-            df[ts_data.columns[idx]+"-"+ts_data.columns[idx-1]] = col
+            df[ts_data.columns[idx-1]] = col
         return df
 
     def insert_Qtime(self, data, data_q):
-        idx = 0
-        for col in data.columns:
-            try:
-                if data.loc[:,col].dtype == "datetime64[ns]":
-                    data.loc[:,col] = data_q.iloc[:,idx].values
-                    idx += 1
-            except:
-                break
-        data.drop(columns="x197",inplace=True)
+        for col in data_q.columns:
+            data.loc[:,col] = data_q.loc[:,col]
+        last = data.select_dtypes("object").columns[-1]
+        data[last] = np.NaN
+        
         return data
 
     def train_preprocess(self, train):
@@ -343,7 +339,7 @@ class PreprocessAndPredict:
         train_sc = std.transform(train)
         train = pd.DataFrame(data=train_sc, index=train.index, columns=train.columns)
 
-        pickle.dump(std, open('models/gw/std_scaler.pkl', 'wb'))
+        pickle.dump(std, open('std_scaler.pkl', 'wb'))
         
         corr_df = train.apply(lambda x: x.corr(y_train))
         corr_df = corr_df.apply(lambda x: round(x ,2))
@@ -354,7 +350,7 @@ class PreprocessAndPredict:
         train_options["column_names"] = train.columns.to_list()
         train_options["column_means"] = list(train.mean().values)
 
-        pickle.dump(train_options, open('models/gw/train_options.pkl', 'wb'))
+        pickle.dump(train_options, open('train_options.pkl', 'wb'))
         
         y_train /= 100
         train = pd.merge(train, y_train,how="left",on="ID") 
@@ -366,15 +362,15 @@ class PreprocessAndPredict:
         test.set_index(keys="ID",inplace=True)
         test.drop(columns="x204",inplace=True)
         
-        test = self.sort_time(test)
-        ts_test = test.select_dtypes("datetime").astype("str")
+        cols = pickle.load(open('train_cols.pkl', 'rb'))
+        test = test[cols]
+        ts_test = test.select_dtypes("object").astype("str")
         test_q = self.Qtime(test, ts_test)
         test = self.insert_Qtime(test, test_q)
-        print(test.info())
-        print(len(test.columns))
+        test = test.astype('float')
         
-        train_options = pickle.load(open('models/gw/train_options.pkl', 'rb'))
-        scaler = pickle.load(open('models/gw/std_scaler.pkl', 'rb'))
+        train_options = pickle.load(open('train_options.pkl', 'rb'))
+        scaler = pickle.load(open('std_scaler.pkl', 'rb'))
         
         test = test[train_options["before_scale_columns"]]
         
@@ -421,38 +417,28 @@ class Preprocessor :
     def __init__(self):
         pass
 
-    def time_preprocessing(self,df):
-        df.set_index(keys="ID", inplace=True)
-        df.drop(columns="x204",inplace=True)
-        for idx,col in enumerate(df.columns.to_list()[188:1454]):
-            if df[col].dtype == "object":
-                df[col] = pd.to_datetime(df[col])
-        datatmp = df.columns.to_list()[188:1454]
-        
-        ts_data = df.select_dtypes("datetime")
-        ts_data.reset_index(drop=True, inplace=True)  # 여기가 일단 새로운 부분 
+    def sort_time(self, data):
+        for idx,col in enumerate(data.columns):
+            if data[col].dtype == "object":
+                data[col] = pd.to_datetime(data[col])
+
+        ts_data = data.select_dtypes("datetime")
+        ts_data.reset_index(drop=True, inplace=True)
+
         for idx in ts_data.index:
             ts_data.sort_values(by=idx,axis=1, inplace=True)
 
-        columns = ts_data.columns
-        num_columns = len(columns)
-        for i in range(1, num_columns):
-            column_diff = pd.to_datetime(ts_data.iloc[:, i]) - pd.to_datetime(ts_data.iloc[:, i-1])  # 앞에 df를 ts_data로 바꿈 
-            column_diff_hours = column_diff.dt.total_seconds() / 3600
-            ts_data.iloc[:, i] = column_diff_hours  # 여기서 문제가 됨!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        for i in range(len(ts_data.columns)-1):
-            ts_data.iloc[:, i] = ts_data.iloc[:, i+1]
         result = []
+        datatmp = data.columns.to_list()[188:1454]
         for idx,col in enumerate(datatmp):
-            if df[col].dtype == "<M8[ns]":
-                cur = int(col[1:])
+            if data[col].dtype == "<M8[ns]":
+                cur = int(col[1:]) # x195 -> 195
                 i = idx
                 tmp = []
                 while i > 0:
                     i -= 1
-                    next = datatmp[i]
-                    if df[next].dtype == "<M8[ns]":
+                    next = datatmp[i] # x194
+                    if data[next].dtype == "<M8[ns]":
                         break
                     else:
                         tmp.append(next)
@@ -464,19 +450,37 @@ class Preprocessor :
                 if elem == target:
                     ts_final.extend(content)
                     ts_final.append(target)
-
-        ts_final = df[ts_final]
-        front = df.loc[:,:"x193"]
-        back = df.loc[:,"x1461":]
+        ts_final = data[ts_final]
+        front = data.loc[:,:"x193"]
+        back = data.loc[:,"x1461":]
         final = pd.concat([front, ts_final, back], axis = 1)
-        ts_data.drop(columns=ts_data.columns[-1], inplace=True)
+        
+        return final
 
-        for col in ts_data.columns:
-            if col in final.columns:
-                final[col] = ts_data[col]
-        final.drop(['x197'], axis=1, inplace=True)
-        df = final
+    def Qtime(self, data, ts_data):
+        df = pd.DataFrame(index=data.index)
+        for idx in range(1, len(ts_data.columns)):
+            col = []
+            for jdx in range(len(ts_data.index)):
+                try:
+                    time1 = datetime.strptime(ts_data.iloc[jdx,idx],"%Y-%m-%d %H:%M")
+                    time2 = datetime.strptime(ts_data.iloc[jdx,idx-1],"%Y-%m-%d %H:%M")
+                except:
+                    time1 = datetime.strptime(ts_data.iloc[jdx,idx],"%Y-%m-%d %H:%M:%S")
+                    time2 = datetime.strptime(ts_data.iloc[jdx,idx-1],"%Y-%m-%d %H:%M:%S")
+
+                diff =  time1 - time2
+                col.append(round(diff.seconds/(60*60),2))
+            df[ts_data.columns[idx-1]] = col
         return df
+
+    def insert_Qtime(self, data, data_q):
+        for col in data_q.columns:
+            data.loc[:,col] = data_q.loc[:,col]
+        last = data.select_dtypes("object").columns[-1]
+        data[last] = np.NaN
+        
+        return data
 
     def na_ratio_preprocessing_train(self,train):
         na_percentage = train.isna().sum() / len(train)
@@ -598,15 +602,14 @@ class Preprocessor :
         train = self.scale_preprocessing_train(train)
         return train
 
-    def preprocessing_Rtest(self,df):
-        Rtest = self.time_preprocessing(df)
-        Rtest = self.na_ratio_preprocessing_Rtest(Rtest)
-        Rtest = self.correlation_preprocessing_Rtest(Rtest)
-        Rtest = self.replace_outliers_median_preprocessing_Rtest(Rtest)
-        Rtest = self.fillna_mean_preprocessing_Rtest(Rtest)
-        Rtest = self.scale_preprocessing_Rtest(Rtest)
+    def preprocessing_Rtest(self,test):
+        test = self.na_ratio_preprocessing_Rtest(test)
+        test = self.correlation_preprocessing_Rtest(test)
+        test = self.replace_outliers_median_preprocessing_Rtest(test)
+        test = self.fillna_mean_preprocessing_Rtest(test)
+        test = self.scale_preprocessing_Rtest(test)
         print("finish preprocessing")
-        return Rtest
+        return test
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -630,11 +633,12 @@ def MakeSimulationData(test, filename):
 
         # last_valid_col 다음 컬럼부터 값을 채우기
         for col in test.columns[test.columns.get_loc(last_valid_col)+1:]:
-            non_null_values = org_traindata_df[col].dropna().tolist()
-            if non_null_values:
-                random_value = random.choice(non_null_values)
-                test[col].iloc[i] = random_value
-            else:
+            try:
+                non_null_values = org_traindata_df[col].dropna().tolist()
+                if non_null_values:
+                    random_value = random.choice(non_null_values)
+                    test[col].iloc[i] = random_value
+            except:
                 continue
     return test
 
@@ -677,12 +681,19 @@ def model2_prediction(test_data):
 
 # 정우
 def model3_prediction(test_data):
-    test_data = test_data.iloc[:, 1:]
-    test_data = MakeSimulationData(test_data, 'trainset.csv')
+    # test_data = test_data.iloc[:, 1:]
+    ps = Preprocessor()
+    cols = pickle.load(open('models/train_cols.pkl', 'rb'))
+    test_data = test_data[cols]
+    ts_test = test_data.select_dtypes("object").astype("str")
+    test_q = ps.Qtime(test_data, ts_test)
+    test_data = ps.insert_Qtime(test_data, test_q)
+    test_data = test_data.astype('float')
+    test_data = MakeSimulationData(test_data, 'prepro_ljw.csv')
     # default_path = 'hynix/ensemble/ljw/'
     # with open(default_path + "Preprocessor", "rb") as f:
     #     preprocess = pickle.load(f)
-    ps = Preprocessor()
+    
     Rtest = ps.preprocessing_Rtest(test_data)
     Rtest= Rtest.reset_index(drop=True)
 
@@ -698,13 +709,13 @@ def ensemble_models(test_data):
     normalized_weights = [weight/sum(weights) for weight in weights]
     
     # pred1 = model1_prediction(test_data) #동연
-    pred2 = model2_prediction(test_data) #고운
-    # pred3 = model3_prediction(test_data) #정우
+    # pred2 = model2_prediction(test_data) #고운
+    pred3 = model3_prediction(test_data) #정우
     
     # pred1 = pred1.reset_index(drop=True)
-    pred2 = pred2.reset_index(drop=True)
+    # pred2 = pred2.reset_index(drop=True)
 
-    predictions = pred2.iloc[:, 0]*normalized_weights[1]
+    predictions = pred3.iloc[:, 0]*normalized_weights[2]
     # pred1.iloc[:, 0]*normalized_weights[0] + pred2.iloc[:, 0]*normalized_weights[1]
     return predictions
 
