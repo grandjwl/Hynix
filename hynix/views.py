@@ -108,17 +108,17 @@ def lifecycle(request):
         else:
             data = []
             from datetime import datetime, timedelta
-            start_date = datetime.strptime("2023-08-23", "%Y-%m-%d")
-            for i in range(1, 101):
+            start_date = datetime.strptime("2023-08-23 12", "%Y-%m-%d %H")
+            for i in range(1,31):
                 date_value = start_date + timedelta(days=i - 1)
-                lot_id = 1000
-                pred = 70
-                real = 70 + i
+                lot_id = 1+i
+                pred = 88
+                real = 88
                 data.append({
                     "Lot_ID": lot_id, # "" 안에 글자가 화면에 표시되는 글자
                     "avg_value": pred, 
                     "real": real,
-                    "real_input_time": date_value.strftime("%Y-%m-%d")
+                    "real_input_time": date_value.strftime("%Y-%m-%d %H")
                 })
             return data
 
@@ -153,14 +153,18 @@ def lifecycle(request):
                 w_lifecycle_entry.save()
             except WLifecycle.DoesNotExist:
                 print(f"No entry found for Lot_ID: {lot_id}")
-                
+        
+        
+               
         # POST 이후 데이터베이스의 최신 데이터를 가져옵니다.
         data = get_data_from_database()
         print('두번째')
 
+
+
         # 처음에 가져온 데이터를 기반으로 델타 값을 계산
         deltas = [
-            (item["avg_value"] - item["real"]) if ("real" in item and "avg_value" in item and item["real"] is not None and item["avg_value"] is not None) else None
+            abs((item["avg_value"] - item["real"])) if ("real" in item and "avg_value" in item and item["real"] is not None and item["avg_value"] is not None) else None
             for item in data
         ]
         deltas = json.dumps(deltas)
@@ -169,6 +173,8 @@ def lifecycle(request):
         except:
             real_input_time = [item.get("real_input_time", None) for item in data]
         real_input_time= json.dumps(real_input_time)
+        
+        
         
         data = {
             "avg_delta": deltas,
