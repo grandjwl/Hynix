@@ -26,19 +26,19 @@
                     <table id="table_id" class="display pretty">
                         <thead>
                             <tr>
-                                <th>Date</th>
-                                <th>ID</th>
-                                <th>Pred</th>
-                                <th>Real</th>
+                                <th>Lot_ID</th>
+                                <th>avg_value</th>
+                                <th>real</th>
+                                <th>real_input_time</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for item in data %}
                                 <tr>
-                                    <td>{{ item.Date }}</td>
-                                    <td>{{ item.ID }}</td>
-                                    <td>{{ item.prediction }}</td>
+                                    <td>{{ item.Lot_ID }}</td>
+                                    <td>{{ item.avg_value }}</td>
                                     <td>{{ item.real }}</td>
+                                    <td>{{ item.real_input_time}}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -125,7 +125,7 @@
       },
       axisLabel: {
         formatter: '{value}',
-        rotate: 45,
+        rotate: 30,
         textStyle: {
           color: 'black',
           fontSize: 15,
@@ -195,12 +195,12 @@
             // 사용자가 입력한 ID와 Real 열 값들 추출
             const IDreal = [];
             $("#table_id tbody tr").each(function() {
-                const idValue = $(this).find("td:eq(1)").text();
-                const realValue = $(this).find("td:eq(3)").text();
+                const idValue = $(this).find("td:eq(0)").text();
+                const realValue = $(this).find("td:eq(2)").text();
     
                 // "td:eq(3)" 값이 None이 아니고 비어있지 않은 경우에만 추가
                 if (realValue !== "None" && realValue.trim() !== "") {
-                    IDreal.push({ "ID": idValue, "real": realValue });
+                    IDreal.push({ "Lot_ID": idValue, "real": realValue });
                 }
             });
     
@@ -214,7 +214,7 @@
                 data: { IDreal: JSON.stringify(IDreal) }, 
                 success: function(response) {
 
-                  var dates_data = response.Date;
+                  var dates_data = response.real_input_time;
                   var avg_delta_data = response.avg_delta;
 
                   draw_mlc(dates_data, avg_delta_data)
@@ -239,4 +239,3 @@
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
 <script type="text/javascript" charset="utf8" src="https://editor.datatables.net/extensions/Editor/js/dataTables.editor.min.js"></script>
 {% endblock %}
-

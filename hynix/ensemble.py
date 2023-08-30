@@ -72,7 +72,9 @@ class PreprocessAndPredict:
                 try:
                     non_null_values = org_traindata_df[col].dropna().tolist()
                     if non_null_values:
-                        random_value = random.choice(non_null_values)
+                        max_range = int(org_traindata_df[col].max(axis=0))
+                        min_range = int(org_traindata_df[col].min(axis=0))
+                        random_value = random.randint(min_range, max_range)
                         test[col].iloc[i] = random_value
                 except:
                     continue
@@ -304,10 +306,24 @@ def ensemble_models(test_data, isFull):
     return predictions
 
 def calculate_confidence_interval(predictions, alpha=0.9):
-    # Bootstrap re-sampling을 사용하여 신뢰구간 계산
-    bootstrapped_samples = [resample(predictions) for _ in range(1000)]
-    min_val = np.percentile(bootstrapped_samples, (1-alpha)/2*100)
-    max_val = np.percentile(bootstrapped_samples, alpha+((1-alpha)/2)*100)
+    # 예측 값들의 평균 및 표준편차 계산
     mean_val = predictions.mean()
+    std_val = predictions.std()
+    var_val = predictions.var()
+
+    # 분산과 표준편차 출력
+    print(f"Variance of predictions: {var_val}")
+    print(f"Standard deviation of predictions: {std_val}")
+
+    # 90% 신뢰구간의 z-점수 계산 (정규 분포)
+    z_score = stats.norm.ppf(1 - (1 - alpha) / 2)
+    
+    # 표준 오차 계산
+    standard_error = std_val / np.sqrt(len(predictions))
+    
+    # 신뢰구간 계산
+    margin_of_error = z_score * standard_error
+    min_val = mean_val - margin_of_error
+    max_val = mean_val + margin_of_error
 
     return min_val, max_val, mean_val

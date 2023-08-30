@@ -37,11 +37,6 @@ def simulation(request):
         
         lot_id_value = test_data['ID'].iloc[0] if 'ID' in test_data.columns else None
         
-        # is_full_data 값이 True인 경우 WLifecycle 테이블에도 저장
-        if isFull == 1 and lot_id_value != None:
-            lifecycle_instance = WLifecycle(Lot_ID=lot_id_value, test_csv=test_data_file)
-            lifecycle_instance.save()
-        
         # 첫 번째 행에서 마지막으로 값이 있는 컬럼의 이름을 찾기 (멘토님이랑 상의 : 변경 예정)
         first_row = test_data.iloc[0].dropna()
         if not first_row.empty:
@@ -58,13 +53,22 @@ def simulation(request):
         
         # 신뢰구간 계산
         min_val, max_val, mean_val = calculate_confidence_interval(prediction)
+        print(min_val, max_val, mean_val)
         print("confidence interval complete")
         
         # 결과를 리스트로 저장
-        simulation_instance = Wsimulation(min_value=min_val, max_value=max_val, avg_value=mean_val, last_filled_column_name=last_filled_column_name)
-        lifecycle_instance = WLifecycle(avg_value=mean_val)
-        simulation_instance.save()
-        lifecycle_instance.save()
+        # simulation_instance = Wsimulation(min_value=min_val, max_value=max_val, avg_value=mean_val, last_filled_column_name=last_filled_column_name)
+        # simulation_instance.save()
+        input_csv_instance.min_value = min_val
+        input_csv_instance.max_value = max_val
+        input_csv_instance.avg_value = mean_val
+        input_csv_instance.last_filled_column_name = last_filled_column_name
+        input_csv_instance.save()
+        
+        # 1번: test_data 파일 업로드 시 WLifecycle에 저장 (조건부)
+        if isFull == 1 and lot_id_value != None:
+            lifecycle_instance = WLifecycle(Lot_ID=lot_id_value, test_csv=test_data_file, avg_value=mean_val)
+            lifecycle_instance.save()
 
         prediction_csv = StringIO()
         prediction_df.to_csv(prediction_csv, index=False)
@@ -84,30 +88,46 @@ def simulation(request):
     confidence_interval = json.dumps(confidence_interval)
     return render(request, "hynix/simulation.html", {"prediction": prediction, "data_json": test_data_json, "confidence_interval": confidence_interval})
 
-@csrf_exempt
-def lifecycle(request):
-    context = {}
 
-    def get_data_from_database():
-        try:
-            w_lifecycle_data_list = WLifecycle.objects.all().values('Lot_ID', 'avg_value', 'real', 'real_input_time')
-            data = list(w_lifecycle_data_list)
-        except (WLifecycle.DoesNotExist, FileNotFoundError, pd.errors.EmptyDataError, pd.errors.ParserError):
+
+from django.http import JsonResponse
+import json
+from django.views.decorators.csrf import csrf_exempt
+@csrf_exempt # 보안 및 공격 방지
+def lifecycle(request):
+    context = {} # 템플릿에 전달될 데이터를 담기. 지금은 초기화.
+
+    def get_data_from_database(): # DB로부터 데이터를 가져오는 역할
+        w_lifecycle_data_list = WLifecycle.objects.all().values('Lot_ID', 'avg_value', 'real', 'real_input_time').order_by('-id')
+        
+        # 데이터가 DB에 존재하는 경우
+        if w_lifecycle_data_list.exists(): # DB에 WLifecycle 데이터가 있는지 확인
+            return list(w_lifecycle_data_list)
+        
+        # 데이터가 DB에 존재하지 않는 경우
+        else:
             data = []
+            from datetime import datetime, timedelta
             start_date = datetime.strptime("2023-08-23", "%Y-%m-%d")
             for i in range(1, 101):
                 date_value = start_date + timedelta(days=i - 1)
-                lot_id = 1000 + i
-                pred = 70 + i
-                real = 70
-                data.append({"Lot_ID": lot_id, "avg_value": pred, "real": real,"real_input_time": date_value.strftime("%Y-%m-%d")})
-        return data
+                lot_id = 1000
+                pred = 70
+                real = 70 + i
+                data.append({
+                    "Lot_ID": lot_id, # "" 안에 글자가 화면에 표시되는 글자
+                    "avg_value": pred, 
+                    "real": real,
+                    "real_input_time": date_value.strftime("%Y-%m-%d")
+                })
+            return data
 
     data = get_data_from_database()
+    print('첫번째')
 
     # 1. GET(표)
     if request.method == "GET":
-        print('GET')
+        print('GET 실행됨')
         context = {"data": data}
 
     # 2. POST(그래프)
@@ -121,9 +141,8 @@ def lifecycle(request):
         # POST로 받은 업데이트된 데이터로 WLifecycle DB를 업데이트
         for updated_item in updated_data_list:
             lot_id = updated_item["Lot_ID"]
-            real_value = int(updated_item["real"])
+            real_value = float(updated_item["real"])
             lot_id = int(lot_id)
-            real_value = int(real_value)
             real_input_time = datetime.now().strftime("%Y-%m-%d")
             
             # WLifecycle에서 Lot_ID 기반으로 항목을 찾아 데이터 갱신
@@ -134,15 +153,26 @@ def lifecycle(request):
                 w_lifecycle_entry.save()
             except WLifecycle.DoesNotExist:
                 print(f"No entry found for Lot_ID: {lot_id}")
+                
+        # POST 이후 데이터베이스의 최신 데이터를 가져옵니다.
+        data = get_data_from_database()
+        print('두번째')
 
         # 처음에 가져온 데이터를 기반으로 델타 값을 계산
-        deltas = [(item["avg_value"] - item["real"]) if item["real"] is not None else None for item in data]
-        real_input_time = [item["real_input_time"] for item in data]
+        deltas = [
+            (item["avg_value"] - item["real"]) if ("real" in item and "avg_value" in item and item["real"] is not None and item["avg_value"] is not None) else None
+            for item in data
+        ]
+        deltas = json.dumps(deltas)
+        real_input_time = [item.get("real_input_time", None).strftime('%Y-%m-%d %H') for item in data]
+        print(real_input_time)
+        real_input_time= json.dumps(real_input_time)
         
         data = {
             "avg_delta": deltas,
             "real_input_time": real_input_time
         }
+        print(data) 
         return JsonResponse(data)
     
     print(request.method)
