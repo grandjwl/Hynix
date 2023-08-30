@@ -164,8 +164,10 @@ def lifecycle(request):
             for item in data
         ]
         deltas = json.dumps(deltas)
-        real_input_time = [item.get("real_input_time", None).strftime('%Y-%m-%d %H') for item in data]
-        print(real_input_time)
+        try:
+            real_input_time = [item.get("real_input_time", None).strftime('%Y-%m-%d %H') for item in data]
+        except:
+            real_input_time = [item.get("real_input_time", None) for item in data]
         real_input_time= json.dumps(real_input_time)
         
         data = {
