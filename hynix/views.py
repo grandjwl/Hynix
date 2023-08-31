@@ -143,7 +143,7 @@ def lifecycle(request):
             lot_id = updated_item["Lot_ID"]
             real_value = float(updated_item["real"])
             lot_id = int(lot_id)
-            real_input_time = datetime.now().strftime("%Y-%m-%d")
+            real_input_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             
             # WLifecycle에서 Lot_ID 기반으로 항목을 찾아 데이터 갱신
             try:
