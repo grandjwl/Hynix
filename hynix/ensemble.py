@@ -60,7 +60,7 @@ class PreprocessAndPredict:
         org_traindata_df.drop(columns="Y",inplace=True)
 
         # test2의 행을 50번 복제
-        test = pd.concat([test]*50).reset_index(drop=True)
+        test = pd.concat([test]*100).reset_index(drop=True)
 
         # 각 행에 대해 처리
         for i in range(len(test)):
@@ -72,9 +72,7 @@ class PreprocessAndPredict:
                 try:
                     non_null_values = org_traindata_df[col].dropna().tolist()
                     if non_null_values:
-                        max_range = int(org_traindata_df[col].max(axis=0))
-                        min_range = int(org_traindata_df[col].min(axis=0))
-                        random_value = random.randint(min_range, max_range)
+                        random_value = random.choice(org_traindata_df[col].tolist())
                         test[col].iloc[i] = random_value
                 except:
                     continue
