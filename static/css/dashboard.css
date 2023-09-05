@@ -14,17 +14,17 @@
     position: sticky;
     top: 48px;
   }
-  .navbar-search {
+  /* .navbar-search {
     display: block;
-  }
+  } */
 }
 
-.sidebar .nav-link {
+.sidebar {
   font-size: .875rem;
   font-weight: 500;
 }
 
-.sidebar .nav-link.active {
+.sidebar {
   color: #2470dc;
 }
 
@@ -36,7 +36,7 @@
  * Navbar
  */
 
-.navbar-brand {
+/* .navbar-brand {
   padding-top: .75rem;
   padding-bottom: .75rem;
   background-color: rgba(0, 0, 0, .25);
@@ -45,4 +45,4 @@
 
 .navbar .form-control {
   padding: .75rem 1rem;
-}
+} */

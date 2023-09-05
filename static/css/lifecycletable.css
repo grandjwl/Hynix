@@ -1,33 +1,28 @@
 /* styles.css */
-body {
-    font: 80%/1.45em Arial, Verdana, Helvetica, sans-serif;
+.dataTables_wrapper {
+    font: 90%/0.8em Arial, Verdana, Helvetica, sans-serif;
     margin: 0;
     padding: 0;
     color: #111;
     background-color: #fff;
 }
 
-#container {
-    margin: 0 auto;
-    width: 960px;
-}
-
 h1 {
     text-align: center;
-    font-size: 1.2em;
+    font-size: 2.5rem;
     font-weight: bold;
     margin: 1em 0;
 }
 
-div.dataTables_wrapper {
+/* div.dataTables_wrapper {
     background-color: #e31837;
-}
+} */
 
 table.pretty tbody th,
 table.pretty tbody td {
     text-align: left;
     background: #fff !important;
-    border: 1px solid #f58025;
+    border: 1px solid #f58025 !important;
 }
 
 table.pretty {
@@ -49,27 +44,142 @@ table.pretty thead th {
 
 table.pretty tfoot th,
 table.pretty tfoot td {
-    background: #fff;
+    background: black;
     text-align: center;
     font-weight: bold;
 }
 
 .dataTables_length label {
-    color: #fff;
+    color: black;
     font-weight: bold;
 }
 
 .dataTables_filter label {
-    color: #fff;
+    color: black;
     font-weight: bold;
 }
 
 .dataTables_info {
-    color: #fff !important;
+    color: black !important;
     font-weight: bold;
 }
 
 .paginate_button {
-    color: #fff;
+    color: black;
     font-weight: bold;
+    font-family: 'S-CoreDream-3Light' !important;
 }
+
+.main_title {
+    font-family: 'Giants-Bold' !important;
+    display: inline-block;
+}
+.main_title2 {
+    display: inline-block;
+    font-family: 'Giants-Bold' !important;
+    color:#e31837;
+}
+.main_title3 {
+    display: inline-block;
+    font-family: 'Giants-Bold' !important;
+    color:#f58025;
+}
+.title {
+    margin-top: 70px;
+    margin-bottom:30px;
+}
+.dataTables_info {
+    display: none;
+}
+.dataTables_length, .dataTables_filter {
+    margin-bottom: 10px;
+}
+#table_id_paginate {
+    margin-top: 10px;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: none !important;
+    border: solid 1px #e31837 !important;
+}
+.main_content {
+    border:1px dashed #e31837;
+    border-radius: 0.5rem;
+    width:80%;
+    margin:auto;
+    padding:70px 50px;
+    margin-bottom: 70px;
+}
+table.dataTable thead th, table.dataTable thead td {
+    border:solid 1px #f58025;
+    border-bottom: none !important;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover{
+    background: none !important;
+    border:none !important;
+    color:black !important;
+}
+#Chart {
+    margin-top:30px !important;
+}
+table {
+    font-family: 'S-CoreDream-3Light';
+}
+
+.loadData {
+margin:auto !important;
+border:none !important;
+border-radius:5px;
+box-shadow:0px 10px 0px 0px #e31837, 
+0px 0px 10px 0px rgba(120, 120, 120, 0.4) !important;
+color:white !important;
+background:#e31837 !important;
+cursor:pointer !important;
+transition:all 0.16s !important;
+position:relative !important;
+top:0 !important;
+width:180px !important;
+background-color: #e31837 !important;
+height: 40px;
+font-family: 'IAMAPLAYER' !important;
+font-size: 20px;
+}
+  
+.loadData:focus{
+outline:none !important;
+}
+.loadData:active{
+    box-shadow: 0px 5px 0px 0px #1d7f8a !important;
+    top:5px !important;
+  }
+  
+.loading-button.red{
+background:#e31837 !important;
+box-shadow:0px 10px 0px 0px #a31228,
+    0px 0px 10px 0px rgba(120, 120, 120, 0.4) !important;
+}
+
+.loading-button.red:active{
+box-shadow: 0px 5px 0px 0px #a31228 !important;
+}
+
+table.dataTable thead th, table.dataTable tfoot th {
+    font-family: 'S-CoreDream-3Light';
+    font-size: 13px;
+}
+.dataTables_length, .dataTables_filter {
+    font-family: 'S-CoreDream-3Light';
+    font-size: 12px;
+}
+
+.row {
+    width:1520px;
+    margin-left: 8px;
+    margin-right: 0px;
+  }
+  
+  .container {
+    width:1520px !important;
+    text-align: right;
+    max-width: 1520px !important;
+    padding:0px;
+  }

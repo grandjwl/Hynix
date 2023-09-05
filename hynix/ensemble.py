@@ -60,7 +60,7 @@ class PreprocessAndPredict:
         org_traindata_df.drop(columns="Y",inplace=True)
 
         # test2의 행을 50번 복제
-        test = pd.concat([test]*50).reset_index(drop=True)
+        test = pd.concat([test]*100).reset_index(drop=True)
 
         # 각 행에 대해 처리
         for i in range(len(test)):
@@ -72,9 +72,7 @@ class PreprocessAndPredict:
                 try:
                     non_null_values = org_traindata_df[col].dropna().tolist()
                     if non_null_values:
-                        max_range = int(org_traindata_df[col].max(axis=0))
-                        min_range = int(org_traindata_df[col].min(axis=0))
-                        random_value = random.randint(min_range, max_range)
+                        random_value = random.choice(org_traindata_df[col].tolist())
                         test[col].iloc[i] = random_value
                 except:
                     continue
@@ -273,23 +271,26 @@ class PreprocessAndPredict:
         
         print("start test")
         test = self.test_preprocess(data)
-        test = self.RealTestDataset(test)
-        test_loader = DataLoader(test, batch_size=50, shuffle=False, drop_last=False)
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        model = LSTM_model(391,256,1,3)
-        model.load_state_dict(torch.load('models/gw/lstm_best_model_sgd_cosine.pt'))
+        # test = self.RealTestDataset(test)
+        # test_loader = DataLoader(test, batch_size=50, shuffle=False, drop_last=False)
+        # device = "cuda" if torch.cuda.is_available() else "cpu"
+        model = load_model('models/gw/voting')
+        # model = LSTM_model(391,256,1,3)
+        # model.load_state_dict(torch.load('models/gw/lstm_best_model_sgd_cosine.pt'))
         print("load model complete")
-        outputs = []
-        for data in test_loader:
-            x = data["x"].to(device)
-            x = x.to(torch.float)
+        outputs = model.predict(test) * 100
+        print(outputs)
+        # outputs = []
+        # for data in test_loader:
+        #     x = data["x"].to(device)
+        #     x = x.to(torch.float)
 
-            output = model(x)
-            output = torch.flatten(output, 0)
+        #     output = model(x)
+        #     output = torch.flatten(output, 0)
 
-            outputs.append(output)
+        #     outputs.append(output)
 
-        outputs = torch.cat(outputs, dim=0) * 100
+        # outputs = torch.cat(outputs, dim=0) * 100
         return outputs
 
 
@@ -299,7 +300,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 def model2_prediction(test_data, isFull):
     pp = PreprocessAndPredict(isfull=isFull)
     pred = pp.run(test_data)
-    pred = pd.DataFrame(pred.detach().numpy())
+    pred = pd.DataFrame(pred)
     return pred
 
 def ensemble_models(test_data, isFull):
