@@ -271,23 +271,26 @@ class PreprocessAndPredict:
         
         print("start test")
         test = self.test_preprocess(data)
-        test = self.RealTestDataset(test)
-        test_loader = DataLoader(test, batch_size=50, shuffle=False, drop_last=False)
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        model = LSTM_model(391,256,1,3)
-        model.load_state_dict(torch.load('models/gw/lstm_best_model_sgd_cosine.pt'))
+        # test = self.RealTestDataset(test)
+        # test_loader = DataLoader(test, batch_size=50, shuffle=False, drop_last=False)
+        # device = "cuda" if torch.cuda.is_available() else "cpu"
+        model = load_model('models/gw/voting')
+        # model = LSTM_model(391,256,1,3)
+        # model.load_state_dict(torch.load('models/gw/lstm_best_model_sgd_cosine.pt'))
         print("load model complete")
-        outputs = []
-        for data in test_loader:
-            x = data["x"].to(device)
-            x = x.to(torch.float)
+        outputs = model.predict(test) * 100
+        print(outputs)
+        # outputs = []
+        # for data in test_loader:
+        #     x = data["x"].to(device)
+        #     x = x.to(torch.float)
 
-            output = model(x)
-            output = torch.flatten(output, 0)
+        #     output = model(x)
+        #     output = torch.flatten(output, 0)
 
-            outputs.append(output)
+        #     outputs.append(output)
 
-        outputs = torch.cat(outputs, dim=0) * 100
+        # outputs = torch.cat(outputs, dim=0) * 100
         return outputs
 
 
@@ -297,7 +300,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 def model2_prediction(test_data, isFull):
     pp = PreprocessAndPredict(isfull=isFull)
     pred = pp.run(test_data)
-    pred = pd.DataFrame(pred.detach().numpy())
+    pred = pd.DataFrame(pred)
     return pred
 
 def ensemble_models(test_data, isFull):

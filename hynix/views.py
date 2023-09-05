@@ -27,13 +27,15 @@ def simulation(request):
     
     if request.method == "POST" and 'test_data' in request.FILES:
         test_data_file = request.FILES['test_data']
-        isFull = int(request.POST["isFull"])
-
+        isFull = 0
+        if "isFull" in request.POST:
+            isFull = int(request.POST["isFull"])
         input_csv_instance = Wsimulation(test_csv=test_data_file)
         input_csv_instance.save()
         
         uploaded_file_path = input_csv_instance.test_csv.path
         test_data = pd.read_csv(uploaded_file_path, index_col=0)
+        print(test_data.columns)
         
         lot_id_value = test_data['ID'].iloc[0] if 'ID' in test_data.columns else None
         
@@ -98,7 +100,7 @@ def lifecycle(request):
     context = {} # 템플릿에 전달될 데이터를 담기. 지금은 초기화.
 
     def get_data_from_database(): # DB로부터 데이터를 가져오는 역할
-        w_lifecycle_data_list = WLifecycle.objects.all().values('Lot_ID', 'avg_value', 'real', 'real_input_time').order_by('-id')
+        w_lifecycle_data_list = WLifecycle.objects.all().values('Lot_ID', 'avg_value', 'real', 'real_input_time').order_by('real_input_time')
         
         # 데이터가 DB에 존재하는 경우
         if w_lifecycle_data_list.exists(): # DB에 WLifecycle 데이터가 있는지 확인
@@ -137,13 +139,47 @@ def lifecycle(request):
             updated_data_list = json.loads(request.POST['IDreal'])
         except json.JSONDecodeError as e:
             print("Failed to decode JSON data:", e)
-
+        
         # POST로 받은 업데이트된 데이터로 WLifecycle DB를 업데이트
         for updated_item in updated_data_list:
             lot_id = updated_item["Lot_ID"]
             real_value = float(updated_item["real"])
+            if "년" in updated_item["real_time"]:
+                date_string = updated_item["real_time"]
+                date_string = date_string.replace("년","").replace("일","")
+                month_mapping = {
+                    '1월': '01',
+                    '2월': '02',
+                    '3월': '03',
+                    '4월': '04',
+                    '5월': '05',
+                    '6월': '06',
+                    '7월': '07',
+                    '8월': '08',
+                    '9월': '09',
+                    '10월': '10',
+                    '11월': '11',
+                    '12월': '12'
+                }
+
+                # 월과 시간대 문자열을 대응하는 영어로 변경
+                for k, v in month_mapping.items():
+                    date_string = date_string.replace(k, v)
+                date_string = date_string.replace('오후', 'PM').replace('오전', 'AM')
+
+                # datetime 객체로 변환
+                date_format = '%Y %m %d %I:%M %p'
+                date_object = datetime.strptime(date_string, date_format)
+
+                # 원하는 포맷으로 출력
+                desired_format = '%Y-%m-%d %H:%M:%S'
+                real_input_time = date_object.strftime(desired_format)
+                
+                print("not none",real_input_time)
+            else:
+                real_input_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                print("none",real_input_time)
             lot_id = int(lot_id)
-            real_input_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             
             # WLifecycle에서 Lot_ID 기반으로 항목을 찾아 데이터 갱신
             try:

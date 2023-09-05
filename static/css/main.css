@@ -1,3 +1,6 @@
+html {
+  width:1520px;
+}
 .bd-placeholder-img {
     font-size: 1.125rem;
     text-anchor: middle;
@@ -94,7 +97,7 @@
 .bt1{
   background-color: #e31837;
   opacity: 0.8;
-  margin-right: 10px;
+  margin-right: 30px;
 }
 .bt1:hover {
   background-color: #e31837;
@@ -103,7 +106,7 @@
 .bt2{
   background-color: #f58025;
   opacity: 0.8;
-  margin-left: 10px;
+  /* margin-left: 10px; */
 }
 .bt2:hover {
   background-color: #f58025;
@@ -114,7 +117,10 @@
   font-size: 40px;
 }
 .main_title {
-  font-family: 'Giants-Bold' !important;
+  /* font-family: 'Giants-Bold' !important; */
+  font-family: 'TmonMonsori';   
+  font-size: 45px !important;     
+  text-shadow: 2px 2px 2px gray;;                           
   display: inline-block;
 }
 .main_title2 {
@@ -128,7 +134,9 @@
   color:#f58025;
 }
 .col-lg-6 {
-  width: 80% !important;
+  width: 1520px !important;
+  padding:0px;
+  margin: 0px;
 }
 
 /*slider*/
@@ -223,4 +231,44 @@
 }
 .card {
   height: 330px;
+}
+
+
+.row {
+  width:1520px;
+  margin-left: 0px;
+  margin-right: 0px;
+  padding-top:0px !important;
+}
+.main_contents1 {
+  display: flex;
+  /* width:1520px; */
+  width:100%;
+  justify-content: space-between;
+  flex-direction: row-reverse;
+
+}
+.titles {
+  vertical-align: middle;
+  padding-top:120px;
+  padding-left:50px;
+}
+.btns {
+  display: flex;
+  flex-direction: column;
+}
+.bt1 {
+  margin-bottom: 10px;
+}
+.container {
+  width:1520px !important;
+  text-align: right;
+  max-width: 1520px !important;
+  padding-top:0px !important;
+  padding-left:0px !important;
+}
+.btns {
+  margin-top:50px;
+  margin-left:10px;
+  flex-direction: row;
 }

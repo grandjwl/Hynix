@@ -10,45 +10,49 @@
 {% block main %}
 <div class="container-fluid">
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 box">
-    <h1 class="h2">반도체 수율 예측 시뮬레이터</h1>
-    <!-- <hr> -->
-    <!-- <div class="btn-toolbar mb-2 mb-md-0">
-        <div class="btn-group me-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
-        </div>
-    </div> -->
+    <h1 class="main_title">반도체 </h1>
+    <h1 class="main_title2">수율 </h1>
+    <h1 class="main_title">예측 </h1>
+    <h1 class="main_title3">시뮬레이터</h1>
   </div>
+<br><br>
   <div class="row">
-    <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+    <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4 contentbox">
       <!-- file upload -->
       <div class="file_upload_container">
         <div class="card">
-          
-          <div class="drop_box1">
-            <div class="file-upload">
-              <div class="file-select">
-                <div class="file-select-button" id="fileName">Choose File</div>
-                <div class="file-select-name" id="noFile">No file chosen...</div> 
-                <form method="post" enctype="multipart/form-data" id="uploadForm">
-                  {% csrf_token %}
-                  <input type="file" accept=".csv" name="test_data" id="chooseFile">
-                  <label>
-                    공정 미완료
-                    <input type="radio" name="isFull" id="isFull" value="0" checked>
-                  </label>
-                  <label>
-                    공정 완료
-                    <input type="radio" name="isFull" id="isFull" value="1">
-                  </label>
-                  
-                  <input type="submit" class="upload_btn" name="upload_btn">
-                </form>
+          <form method="post" enctype="multipart/form-data" id="uploadForm">
+            <div class="drop_box1">
+              <div class="chbox">
+                <p>공정 완료</p>
+                <label class="switch">
+                  <input type="checkbox" name="isFull" id="toggle-switch" value="0">
+                  <span class="slider round"></span>
+                </label>
+                <p id="status"></p>
               </div>
+              <div class="formbox">
+                <div class="file-upload">
+                  <div class="file-select">
+                    <div class="file-select-button" id="fileName">Choose File</div>
+                    <div class="file-select-name" id="noFile">No file chosen...</div> 
+                      {% csrf_token %}
+                      <input type="file" accept=".csv" name="test_data" id="chooseFile">
+                  </div>
+                </div>
+                <input type="submit" class="upload_btn btn green rounded" name="upload_btn" value="Upload">
+              </div>
+              
+              
             </div>
-          </div>
-
+            
+          </form>
         </div>
+      </div>
+
+      <!-- prediction button -->
+      <div class="bt_wrapper">
+        <button type="button" class="pred red loading-button">Show Chart</button>
       </div>
 
       <!-- csv file table -->
@@ -64,14 +68,11 @@
           </table>
         </div>
         <br>
-        <!-- prediction button -->
-        <div class="bt_wrapper">
-          <button type="button" class="pred">Predict</button>
-        </div>
       </div>
 
       <!-- dashboard -->
-      <canvas id="myChart" style="display:none;"></canvas>
+      <hr class="line" style="display:none;">
+      <div id="myChart" style="display:none; width:1220px; height:700px;"></div>
     </div>
   </div>
 </div>
@@ -79,14 +80,14 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/cdn.jsdelivr.net_npm_chart.js' %}"></script>
+<script src="{% static 'js/chart.umd.js.map' %}"></script>
 <script src="{% static 'js/echarts.js.map' %}"></script>
 <script src="{% static 'js/echarts.js' %}"></script>
 <script src="{% static 'js/echarts.min.js' %}"></script>
 <script type="text/javascript">
   var data = {{ data_json|safe }};
   var minmax = {{ confidence_interval|safe }};
-  console.log(minmax);
 </script>
 <script src="{% static 'js/simulation.js' %}" type="module"></script>
 {% endblock %}

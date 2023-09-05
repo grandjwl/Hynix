@@ -18,12 +18,12 @@
     
   </head>
 
-  <body>
+  <body style="overflow-x: hidden;">
     <header data-bs-theme="dark" class="header_wrapper">
       <div class="navbar navbar-dark bg-dark shadow-sm">
         <div class="container">
           <a href="{% url 'main' %}" class="navbar-brand d-flex align-items-center">
-            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1610 1295" width="30" height="30">
+            <!-- <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1610 1295" width="30" height="30">
               <style>
                 .s0 { fill: #e31837 } 
                 .s1 { fill: #f58025 } 
@@ -40,9 +40,9 @@
                   </g>
                 </g>
               </g>
-            </svg>
+            </svg> -->
 
-            <!-- <strong>&nbsp;PT1H Simulator</strong> -->
+            <img src="{% static 'img/sk.png' %}" width="75" height="40">
           </a>
           <ul class="nav nav-pills">
             <li class="nav-item navli"><a href="{% url 'main' %}" class="nav-link active nava" aria-current="page">Home</a></li>

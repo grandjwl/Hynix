@@ -1,13 +1,12 @@
 // 대시보드 showing 함수
 function ShowChart() {
-
-  const table = document.querySelector(".table-responsive"),
-    btn2 = table.querySelector(".pred");
+  const btn2 = document.querySelector(".pred");
   var chartDom = document.getElementById('myChart');
-  btn2.onclick = () => {
-    btn2.style.display = "none";
+  var line = document.querySelector(".line");
+  btn2.addEventListener('click',function() {
+    line.style.display = "block";
     chartDom.style.display = "block";
-  };
+  });
 
   var process = new Array();
   var pred_max = new Array();
@@ -21,46 +20,55 @@ function ShowChart() {
     pred_avg.push(minmax.avg[i]);
     process.push(minmax.process[i]);
   }
+  var ymax = Math.max(pred_max);
+  var ymin = Math.min(pred_min);
 
-  var ctx = document.getElementById('myChart').getContext('2d');
-  var chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: process,
-      datasets: [
-        {
-          label: 'Min Values',
-          data: pred_min,
-          borderColor: 'red',
-          fill: false
-        },
-        {
-          label: 'Max Values',
-          data: pred_max,
-          borderColor: 'blue',
-          fill: false
-        },
-        {
-          label: 'Avg Values',
-          data: pred_avg,
-          backgroundColor: 'green', // 점의 배경색
-          borderColor: 'green', // 점의 테두리 색
-          pointRadius: 2, // 점의 반지름
-          pointHoverRadius: 3, // 호버 시의 점의 반지름
-          pointStyle: 'circle', // 점의 모양
-          showLine: false, // 선 그래프 표시하지 않음
-          fill: false
-        }
-      ]
+  var myChart = echarts.init(chartDom);
+  var option;
+
+  option = {
+    title: {
+      text: '반도체 수율 시뮬레이션 결과',
+      left: 'center', 
     },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: false
-        }
+    xAxis: {
+      type: 'category',
+      name: "공정 진행 단계",
+      data: process,
+    },
+    yAxis: {
+      scale: true,
+      name: "수율(%)",
+    },
+    series: [
+      {
+        data: pred_max,
+        type: 'line',
+        smooth: true
+      },
+      {
+        data: pred_avg,
+        type: 'scatter',
+      },
+      {
+        data: pred_min,
+        type: 'line',
+        smooth: true
       }
-    }
-  });
+    ],
+    dataZoom: [
+      {
+        type: 'inside',
+        xAxisIndex: [0],
+        startValue: 0, // 배경 색 시작 지점
+        endValue: process.length - 1, // 배경 색 종료 지점
+        orient: 'horizontal',
+        zoomLock: true, // 배경 색 영역을 잠금
+        backgroundColor: 'rgba(1, 1, 1, 0)', // 배경 색
+      }
+    ]
+  };
+  option && myChart.setOption(option);
 }
 
 // file upload form
@@ -88,14 +96,12 @@ function FillTable() {
   // 전체 데이터의 id값들 저장
   const dataKeys = Object.keys(data);
 
-  const table = document.querySelector(".table");
+
+  const table = document.querySelector(".table-responsive");
+  table.style.marginTop = "70px";
   const theadr = document.querySelector(".tableHead");
   const tbody = document.querySelector(".tableBody");
 
-  // lot id 컬럼명 추가
-  theadr.innerHTML += `
-      <th>ID</th>
-    `
   // id 제외한 컬럼명들 추가
   for(var key in valKeys){
     theadr.innerHTML += `
@@ -105,9 +111,9 @@ function FillTable() {
   // 데이터 추가
   for(var key in dataKeys){
     const val = data[dataKeys[Number(key)]];
+    console.log(val);
     var content = `
     <tr class="vals">
-    <td>${key}</td>
     `;
     for(var v in val){
       if (!val[v]){
@@ -128,6 +134,24 @@ function FillTable() {
   area.style.display = "block";
 };
 
+function Toggle() {
+  const toggleSwitch = document.getElementById("toggle-switch");
+  toggleSwitch.addEventListener("change", function () {
+      if (toggleSwitch.checked) {
+          // ON일 때, value 값을 1로 설정
+          toggleSwitch.value = "1";
+          // statusElement.textContent = "YES";
+      } else {
+          // OFF일 때, value 값을 0으로 설정
+          toggleSwitch.value = "0";
+          // statusElement.textContent = "NO";
+      }
+  });
+}
+
 UploadFile();
-FillTable();
+Toggle();
 ShowChart();
+FillTable();
+
+

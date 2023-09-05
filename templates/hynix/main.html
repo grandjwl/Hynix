@@ -4,6 +4,10 @@
 {% block head %}
 <link href="{% static 'css/main.css' %}" rel="stylesheet">
 <link href="{% static 'css/slick.css' %}" rel="stylesheet">
+<style>
+  @import url('https://fonts.cdnfonts.com/css/kei');
+</style>
+
 {% endblock %}
 
   {% block main %}
@@ -11,28 +15,37 @@
     <section class="py-5 text-center container">
       <div class="row py-lg-5">
         <div class="col-lg-6 col-md-8 mx-auto">
-          <br><br>
-          <h1 class="main_title2">반도체 </h1>
+          <!-- <h1 class="main_title2">반도체 </h1>
           <h1 class="main_title">양산 공정 데이터를 활용한 </h1>
           <h1 class="main_title3">수율 예측 </h1>
-          <h1 class="main_title">시뮬레이터</h1>
-          <br><br><br>
-          <!-- <p class="lead text-body-secondary">SK Hynix</p> -->
-          <div class="imgs">
-            <img src="{% static 'img/sk.png' %}" width="120" height="60">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <img src="{% static 'img/x.png' %}" width="35" height="35" style="margin-top: 25px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <img src="{% static 'img/tacademy.png' %}" width="125" height="50" style="margin-top: 10px;">
+          <h1 class="main_title">시뮬레이터</h1> -->
+          <div class="main_contents1">
+            <div class="imgs">
+              <img src="{% static 'img/semiconductor-removebg-preview.png' %}" width="600" height="400">
+              <!-- <img src="{% static 'img/x.png' %}" width="35" height="35" style="margin-top: 25px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <img src="{% static 'img/tacademy.png' %}" width="125" height="50" style="margin-top: 10px;"> -->
+            </div>
+            <br><br>
+            <div class="titles">
+              <h1 class="main_title">Semiconductor Yield</h1><br>
+              <h1 class="main_title">Prediction Simulator</h1>
+              <div class="btns">
+                <a href="{% url 'simulator' %}" class="bt1 bt">Simulate</a>
+                <a href="{% url 'mlc' %}" class="bt2 bt">Life Cycle Check</a>
+              </div>
+            </div>
+            
+            <!-- <br><br><br> -->
+            <!-- <p class="lead text-body-secondary">SK Hynix</p> -->
+            
           </div>
           
-          <br><br><br>
-          <p>
-            <a href="{% url 'simulator' %}" class="bt1 bt">Simulate</a>
-            <a href="{% url 'mlc' %}" class="bt2 bt">Life Cycle Check</a>
-          </p>
+          
+
         </div>
       </div>
     </section>
-    <br>
+
     <div class="album py-5 bg-body-tertiary">
       <div class="container">
         <!-- blog slider -->
@@ -41,12 +54,12 @@
           <div class="post-slider">
             <h2 class="silder-title">Semiconductor Integration Process</h2>
             <i class="fas fa-chevron-left prev">
-              <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="white" class="bi bi-caret-left-fill" viewBox="0 0 50 50">
+              <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="white" viewBox="0 0 50 50">
                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
               </svg>
             </i>
             <i class="fas fa-chevron-right next">
-              <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="white" class="bi bi-caret-right-fill" viewBox="0 0 50 50">
+              <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="white" viewBox="0 0 50 50">
                 <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
               </svg>
             </i>

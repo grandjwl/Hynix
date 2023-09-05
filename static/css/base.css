@@ -29,9 +29,33 @@
      font-weight: normal;
      font-style: normal;
 }
-
+@font-face {
+    font-family: 'IAMAPLAYER';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2307-2@1.0/IAMAPLAYER.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+  font-family: 'KimjungchulMyungjo-Bold';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302_01@1.0/KimjungchulMyungjo-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'TmonMonsori';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/TmonMonsori.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+                
 
 /* header */
+.shadow-sm img {
+  border-bottom: none !important;
+}
+.navbar {
+  padding : 10px 10px 10px 35px;
+}
 .header_wrapper {
   height:56px;
 }
@@ -54,6 +78,9 @@
   font-size: 1.25rem !important;
   text-decoration: none !important;
   white-space: nowrap !important;
+}
+.navbar-brand .d-flex .align-items-center {
+  margin-left:30px;
 }
 
 
