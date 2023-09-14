@@ -1,5 +1,5 @@
 # Tacademy ASAC 2기 하이주니어 팀
-## SK Hynix 기업연계 프로젝트 
+## SK 하이닉스 기업연계 프로젝트 
 ## 반도체 양산 공정 데이터를 활용한 수율 시뮬레이터 개발 
 
 <hr>
@@ -35,7 +35,7 @@
 <br><br>
 
 ### 참고 문헌
-- [SK Hynix 기술블로그 (블로그)](https://news.skhynix.co.kr/post/jeonginseong-column-computer)
+- [SK 하이닉스 기술블로그 (블로그)](https://news.skhynix.co.kr/post/jeonginseong-column-computer)
 
 - [점프 투 장고 (E-book)](https://wikidocs.net/book/4223)
 
