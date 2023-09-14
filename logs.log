@@ -11186,3 +11186,5 @@
 'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
 2023-09-14 15:19:18,167:WARNING:
 'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2023-09-14 15:20:01,825:INFO:Initializing load_model()
+2023-09-14 15:20:01,825:INFO:load_model(model_name=models/gw/voting, platform=None, authentication=None, verbose=True)
