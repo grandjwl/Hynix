@@ -9,6 +9,7 @@
 2. [프로젝트 구조](#프로젝트-구조)
 3. [프로젝트 환경](#프로젝트-환경)
 4. [데이터와 모델](#데이터와-모델)
+5. [참고문헌](#참고-문헌)
 
 <hr>
 
@@ -31,6 +32,21 @@
 <br><br>
 
 ### 데이터와 모델
+<br><br>
+
+###참고문헌
+- [SK Hynix 기술블로그 (블로그)](https://news.skhynix.co.kr/post/jeonginseong-column-computer)
+
+- [점프 투 장고 (E-book)](https://wikidocs.net/book/4223)
+
+- Django로 배우는 쉽고 빠른 웹 개발_파이썬 웹프로그래밍 (도서)
+- 
+- Liu, P., Sun, X., Han, Y., He, Z., Zhang, W., Wu, C. (2022) Arrhythmia classification of LSTM autoencoder based on
+time series anomaly detection. Biomedical Signal Processing and Control
+- Xu, X., Yoneda, M. (2019) Multitask air-quality prediction based on LSTM-autoencoder model. IEEE transactions
+on cybernetics 5
+- 카이스트 주재걸 교수 LSTM 강의 (동영상)
+
 
 
 
