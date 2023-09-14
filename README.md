@@ -37,8 +37,36 @@
 ### 데이터와 모델
 <br><br>
 
-## 웹 시뮬레이터 개발
+### 웹 시뮬레이터 개발
+#### Simulation
+- Requirements
+  1. VS Code Terminal에서 프로젝트 폴더로 이동하기
+   ```
+   cd path/to/your/project
+   ```
 
+  2. Python 3.10.12를 사용하여 가상 환경 생성하기
+   ```
+   python3.10 -m venv venv_name
+   ```
+
+  3. 가상 환경 활성화하기
+   ```
+   .\venv_name\Scripts\Activate
+   ```
+
+  4. 'requirements.txt' 파일 내 라이브러리들을 버전까지 동일하게 가상 환경에 설치하기
+   requirements.txt URL: (https://github.com/grandjwl/Hynix/blob/main/requirements.txt)
+
+  5. Django 개발 웹 서버 시작하기
+   ```
+   python manage.py runserver
+   ```
+
+- Simulation
+  1.  
+
+   
 
 
 
