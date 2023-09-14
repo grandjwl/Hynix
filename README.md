@@ -27,7 +27,9 @@
 ### 프로젝트 환경
 ![image](https://github.com/grandjwl/Hynix/assets/135038257/a97e4dd1-d7f8-4654-8b35-ed7a01aea436)
 >저희 프로젝트 환경입니다.
+- 머신러닝에서는 scikit-learn과 Pycaret을 사용 했고 딥러닝에서는 PyTorch를 사용 했으며 웹에서는 django 기반 프레임워크를 사용 후 UI개발은 Boostrap을 사용 했습니다. 
 <br><br>
+
 ### 데이터와 모델
 
 
