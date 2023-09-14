@@ -13,7 +13,6 @@ import random
 from torch.utils.data import Dataset, DataLoader, TensorDataset
 from scipy import stats
 from sklearn.preprocessing import StandardScaler
-from hynix.model_class import LSTM, LSTM_model
 from pycaret.regression import *
 from sklearn.utils import resample
 import warnings
@@ -27,8 +26,6 @@ np.random.seed(1234)
 cudnn.benchmark = False
 cudnn.deterministic = True
 random.seed(1234)
-
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # 고운
 class PreprocessAndPredict:
@@ -54,7 +51,6 @@ class PreprocessAndPredict:
         csv_obj = PreprocessedCSV.objects.filter(data__contains='prepro_cgw.csv').first()
         if csv_obj:
             file_path = csv_obj.data.path
-        # file_path = 'input_csvs/prepro_cgw.csv'
         # 파일을 직접 Pandas 데이터프레임으로 읽기
         org_traindata_df = pd.read_csv(file_path,index_col=0)
         org_traindata_df.drop(columns="Y",inplace=True)
@@ -268,29 +264,11 @@ class PreprocessAndPredict:
         return test
 
     def run(self, data):
-        
         print("start test")
         test = self.test_preprocess(data)
-        # test = self.RealTestDataset(test)
-        # test_loader = DataLoader(test, batch_size=50, shuffle=False, drop_last=False)
-        # device = "cuda" if torch.cuda.is_available() else "cpu"
         model = load_model('models/gw/voting')
-        # model = LSTM_model(391,256,1,3)
-        # model.load_state_dict(torch.load('models/gw/lstm_best_model_sgd_cosine.pt'))
         print("load model complete")
         outputs = model.predict(test) * 100
-        print(outputs)
-        # outputs = []
-        # for data in test_loader:
-        #     x = data["x"].to(device)
-        #     x = x.to(torch.float)
-
-        #     output = model(x)
-        #     output = torch.flatten(output, 0)
-
-        #     outputs.append(output)
-
-        # outputs = torch.cat(outputs, dim=0) * 100
         return outputs
 
 
@@ -314,10 +292,6 @@ def calculate_confidence_interval(predictions, alpha=0.9):
     mean_val = predictions.mean()
     std_val = predictions.std()
     var_val = predictions.var()
-
-    # 분산과 표준편차 출력
-    print(f"Variance of predictions: {var_val}")
-    print(f"Standard deviation of predictions: {std_val}")
 
     # 90% 신뢰구간의 z-점수 계산 (정규 분포)
     z_score = stats.norm.ppf(1 - (1 - alpha) / 2)

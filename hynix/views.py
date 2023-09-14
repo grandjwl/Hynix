@@ -7,7 +7,6 @@ from django.http import HttpResponse
 import warnings
 warnings.filterwarnings(action='ignore')
 import pandas as pd
-from hynix.model_class import LSTM, LSTM_model
 from hynix.ensemble import ensemble_models, calculate_confidence_interval
 import json
 from django.views.decorators.csrf import csrf_exempt
@@ -59,8 +58,6 @@ def simulation(request):
         print("confidence interval complete")
         
         # 결과를 리스트로 저장
-        # simulation_instance = Wsimulation(min_value=min_val, max_value=max_val, avg_value=mean_val, last_filled_column_name=last_filled_column_name)
-        # simulation_instance.save()
         input_csv_instance.min_value = min_val
         input_csv_instance.max_value = max_val
         input_csv_instance.avg_value = mean_val
@@ -125,16 +122,13 @@ def lifecycle(request):
             return data
 
     data = get_data_from_database()
-    print('첫번째')
 
     # 1. GET(표)
     if request.method == "GET":
-        print('GET 실행됨')
         context = {"data": data}
 
     # 2. POST(그래프)
     elif request.method == "POST":
-        print("POST")
         try:
             updated_data_list = json.loads(request.POST['IDreal'])
         except json.JSONDecodeError as e:
@@ -189,14 +183,9 @@ def lifecycle(request):
                 w_lifecycle_entry.save()
             except WLifecycle.DoesNotExist:
                 print(f"No entry found for Lot_ID: {lot_id}")
-        
-        
-               
+         
         # POST 이후 데이터베이스의 최신 데이터를 가져옵니다.
         data = get_data_from_database()
-        print('두번째')
-
-
 
         # 처음에 가져온 데이터를 기반으로 델타 값을 계산
         deltas = [
@@ -210,14 +199,10 @@ def lifecycle(request):
             real_input_time = [item.get("real_input_time", None) for item in data]
         real_input_time= json.dumps(real_input_time)
         
-        
-        
         data = {
             "avg_delta": deltas,
             "real_input_time": real_input_time
         }
         print(data) 
         return JsonResponse(data)
-    
-    print(request.method)
     return render(request, "hynix/lifecycle.html", context)
