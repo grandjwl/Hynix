@@ -51,10 +51,10 @@ class PreprocessAndPredict:
         
     # 50번의 시뮬레이션 데이터 생성
     def MakeSimulationData(self, test):
-        # csv_obj = PreprocessedCSV.objects.filter(data__contains='prepro_cgw.csv').first()
-        # if csv_obj:
-        #     file_path = csv_obj.data.path
-        file_path = 'test_files/prepro_cgw.csv'
+        csv_obj = PreprocessedCSV.objects.filter(data__contains='prepro_cgw.csv').first()
+        if csv_obj:
+            file_path = csv_obj.data.path
+        # file_path = 'input_csvs/prepro_cgw.csv'
         # 파일을 직접 Pandas 데이터프레임으로 읽기
         org_traindata_df = pd.read_csv(file_path,index_col=0)
         org_traindata_df.drop(columns="Y",inplace=True)
