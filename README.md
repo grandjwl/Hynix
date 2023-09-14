@@ -10,8 +10,6 @@
 3. [프로젝트 환경](#프로젝트-환경)
 4. [데이터와 모델](#데이터와-모델)
 5. [웹 시뮬레이터 개발](#웹-시뮬레이터-개발)
-   - Simulation
-   - Model Life Cycle
 6. [참고문헌](#참고-문헌)
 
 <hr>
@@ -38,8 +36,6 @@
 <br><br>
 
 ### 웹 시뮬레이터 개발
-
-#### Simulation
 - Requirements
   1. VS Code Terminal에서 프로젝트 폴더로 이동하기
   
@@ -68,9 +64,14 @@
      python manage.py runserver
      ```
 
+- Simulation
+# ![image](이미지 ULR)  
+
    
 
 
+- Model Life Cycle
+# ![image](이미지 ULR)  
 
 
 <br><br>
