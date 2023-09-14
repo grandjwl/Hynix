@@ -34,7 +34,7 @@
 ### 데이터와 모델
 <br><br>
 
-### 참고문헌
+### 참고 문헌
 - [SK Hynix 기술블로그 (블로그)](https://news.skhynix.co.kr/post/jeonginseong-column-computer)
 
 - [점프 투 장고 (E-book)](https://wikidocs.net/book/4223)
