@@ -26,8 +26,10 @@
 
 ### 프로젝트 환경
 ![image](https://github.com/grandjwl/Hynix/assets/135038257/a97e4dd1-d7f8-4654-8b35-ed7a01aea436)
-저희 프로젝트 환경입니다. 
+>저희 프로젝트 환경입니다. 
 <br><br>
+
+### 데이터와 모델
 
 
 
