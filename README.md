@@ -88,7 +88,7 @@
 
 # ![image](https://github.com/grandjwl/Hynix/assets/127659652/08238330-5349-4cef-86e9-ea7d92deeb68)
    - 'UPDATE DATA' 버튼을 눌러 실제 수율값과 예측된 수율값의 오차를 입력 순서대로 그래프를 통해 확인 가능합니다.
-   - 그래프가 저희가 설정한 Threshold를 넘으면 재학습을 고려해 볼 수 있습니다.
+   - 그래프의 값이 설정한 Threshold를 넘으면 재학습을 고려해 볼 수 있습니다.
 <br><br>
 
 ### 추후 연구 방향  
