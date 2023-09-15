@@ -66,25 +66,30 @@
      ```
 
 #### Simulation
-# ![image](https://github.com/grandjwl/Hynix/assets/127659652/aff9e63b-8732-4cd7-905a-831ea00452c5)
+![image](https://github.com/grandjwl/Hynix/assets/127659652/aff9e63b-8732-4cd7-905a-831ea00452c5)
    - 웹 시뮬레이터의 Simulation 페이지 입니다. 웹 시뮬레이터의 공정이 완료되기 전의 데이터와 완료된 데이터 모두 업로드하여 수율 예측값을 시뮬레이션 가능합니다.
+<br><br>
 
-# ![image](https://github.com/grandjwl/Hynix/assets/127659652/5bfcb41e-b829-45d3-ad2b-d94863432ecb)  
+![image](https://github.com/grandjwl/Hynix/assets/127659652/5bfcb41e-b829-45d3-ad2b-d94863432ecb)  
    - 공정의 완료 여부와 상관없이 데이터를 업로드하면 업로드한 데이터를 웹에서 확인 가능합니다.
    - 'SHOW CHART' 버튼을 눌러 공정이 완료되기 전부터 시뮬레이터를 통해 수율을 예측할 수 있습니다.
+<br><br>
   
-# ![image](https://github.com/grandjwl/Hynix/assets/127659652/b473caad-f70e-4972-bd3d-83457cef292c)
+![image](https://github.com/grandjwl/Hynix/assets/127659652/b473caad-f70e-4972-bd3d-83457cef292c)
    - 최종적으로 공정이 완료된 데이터를 시뮬레이션하여 공정이 완료될때까지의 시뮬레이션 결과를 그래프를 통해 확인할 수 있습니다.
    - 파란색 선과 노란색 선은 예측한 수율 값의 신뢰구간이고, 초록색 점들은 예측 값들의 평균 값입니다.
+<br><br>
 
 #### Model Life Cycle
-# ![image](https://github.com/grandjwl/Hynix/assets/127659652/df467b99-55ed-4c03-b800-76822c33af47)
+![image](https://github.com/grandjwl/Hynix/assets/127659652/df467b99-55ed-4c03-b800-76822c33af47)
    - 지금까지 예측했던 공정이 완료된 데이터를 불러옵니다. 화면 내 표 최하단에는 마지막에 입력한 데이터가 들어있습니다.
+<br><br>
 
-# ![image](https://github.com/grandjwl/Hynix/assets/127659652/19927df3-ca01-47ee-b02e-5b3f34a93a75)
+![image](https://github.com/grandjwl/Hynix/assets/127659652/19927df3-ca01-47ee-b02e-5b3f34a93a75)
    - 표 최하단 행의 real 컬럼값으로 마지막에 입력한 데이터에 대한 실제 수율 값을 입력해줍니다.
+<br><br>
 
-# ![image](https://github.com/grandjwl/Hynix/assets/127659652/2c1e1329-bf99-4139-9254-fbc0aaab8213)
+![image](https://github.com/grandjwl/Hynix/assets/127659652/2c1e1329-bf99-4139-9254-fbc0aaab8213)
    - 'UPDATE DATA' 버튼을 눌러 실제 수율값과 예측된 수율값의 오차를 입력 순서대로 그래프를 통해 확인 가능합니다.
    - 그래프의 값이 설정한 Threshold를 넘으면 재학습을 고려해 볼 수 있습니다.
 <br><br>
