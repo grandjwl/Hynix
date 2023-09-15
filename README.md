@@ -44,7 +44,7 @@
 <br><br>
 
 ### 웹 시뮬레이터
-- Requirements
+#### Requirements
   1. 개발 환경 세팅
       ```
       conda create -n hynix python=3.10.12
@@ -59,7 +59,7 @@
      python manage.py runserver
      ```
 
-- Simulation
+#### Simulation
 # ![image](https://github.com/grandjwl/Hynix/assets/127659652/01efcc74-23f8-434b-ba94-5c0d175e67ee)
    - 웹 시뮬레이터의 Simulation 페이지 입니다. 웹 시뮬레이터의 공정이 완료되기 전의 데이터와 완료된 데이터 모두 업로드하여 수율 예측값을 시뮬레이션 가능합니다.
 
@@ -70,7 +70,7 @@
    - 최종적으로 공정이 완료된 데이터를 시뮬레이션하여 공정이 완료될때까지의 시뮬레이션 결과를 그래프를 통해 확인할 수 있습니다.
    - 파란색 선과 노란색 선은 예측한 수율 값의 신뢰구간이고, 초록색 점들은 예측 값들의 평균 값입니다.
 
-- Model Life Cycle
+#### Model Life Cycle
 # ![image](https://github.com/grandjwl/Hynix/assets/127659652/729bebfc-d04f-4c4d-9dfc-f35cfe02a777)
    - 지금까지 예측했던 공정완료 된 데이터를 불러옵니다. 화면 내 표 최하단에는 입력한 데이터가 들어와 있습니다.
 
