@@ -69,7 +69,7 @@
 
 #### Simulation
 # <img src="https://github.com/grandjwl/Hynix/assets/127659652/9f4b3da6-8bba-4b83-9b64-8007402c56d2" alt="Simulation_1" width="646" height="411">
-   - 웹 시뮬레이터의 Simulation 페이지 입니다. 웹 시뮬레이터의 공정이 완료되기 전의 데이터와 완료된 데이터 모두 업로드하여 수율 예측값을 시뮬레이션 가능합니다.
+-  웹 시뮬레이터의 Simulation 페이지 입니다. 웹 시뮬레이터의 공정이 완료되기 전의 데이터와 완료된 데이터 모두 업로드하여 수율 예측값을 시뮬레이션 가능합니다.
 
 # ![image](https://github.com/grandjwl/Hynix/assets/127659652/3cd486c8-c1fc-49c2-9285-42c44e329ffb)  
    - 공정의 완료 여부와 상관없이 데이터를 업로드하면 업로드한 데이터를 웹에서 확인 가능합니다.
