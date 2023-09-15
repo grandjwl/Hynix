@@ -23,12 +23,12 @@
 <br><br>
 
 ### 프로젝트 구조 
-![image](https://github.com/grandjwl/Hynix/assets/135038257/36ba5f3f-c92e-45d9-8918-070ba4786684)
+![image][KakaoTalk_20230915_154147466](https://github.com/grandjwl/Hynix/assets/135038257/cb60bea1-12ea-452e-967c-4aeb3aa46ebc)
 - 반도체 공정에서 발생하는 센서값들을 받아 수율 예측 모델을 돌리고 웹 페이지에서 이를 가시화 합니다. 그리고 재학습의 기준을 확인하여 모델 라이프사이클을 체크 할 수 있도록 기획 했습니다.
 <br><br>
 
 ### 프로젝트 환경
-![image](https://github.com/grandjwl/Hynix/assets/135038257/a97e4dd1-d7f8-4654-8b35-ed7a01aea436)
+![image][KakaoTalk_20230915_154205863](https://github.com/grandjwl/Hynix/assets/135038257/5bad9f3d-c4fd-47f7-967d-a0282a62405a)
 - 머신러닝 모델링은  scikit-learn과 Pycaret을 사용 했고 딥러닝 모델링은 PyTorch를 사용 했습니다.
 - 웹 백엔드 개발 프레임워크로 django를 사용했으며 웹 프론트엔드 개발은 Boostrap과 HTML, CSS, JS를 활용했습니다. 
 <br><br>
